@@ -79,6 +79,40 @@
       </div>
     </div>
 
+    <!-- 주간 복지관 업무 & 할 일 입력/관리 섹션 (날짜 아래, 어르신 이름 위) -->
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-indigo-100 mb-4">
+      <div class="flex items-center justify-between mb-2.5">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs">
+            <i class="fa-solid fa-clipboard-check"></i>
+          </div>
+          <h3 class="font-extrabold text-sm text-slate-800">이번 주 복지관 업무 & 주간 할 일</h3>
+        </div>
+        <span id="welfare-count-badge" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+          0/0 완료
+        </span>
+      </div>
+
+      <!-- 새 할 일 입력 칸 -->
+      <div class="flex gap-1.5 mb-3">
+        <input type="text" 
+               id="welfare-input" 
+               placeholder="예: 주간 회의 전달사항, 후원품 수령, 일지 제출 등" 
+               onkeypress="handleWelfareInputKey(event)"
+               class="flex-1 text-xs px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-slate-800">
+        <button onclick="addWelfareTask()" 
+                class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1">
+          <i class="fa-solid fa-plus text-[10px]"></i>
+          <span>추가</span>
+        </button>
+      </div>
+
+      <!-- 복지관 할 일 리스트 -->
+      <div id="welfare-task-list" class="space-y-1.5 max-h-52 overflow-y-auto pr-0.5">
+        <!-- JS로 동적 렌더링 -->
+      </div>
+    </div>
+
     <!-- 방문 스케줄 리스트 컨테이너 -->
     <div class="space-y-3" id="schedule-list">
       <!-- 어르신 카드들이 JS를 통해 삽입됩니다 -->
@@ -199,16 +233,9 @@
       },
       3: { // 수
         dayName: '수요일',
-        routeTitle: '복지관 & 벽적골 ➡️ 신동 🏥',
+        routeTitle: '복지관 & 벽적골 ➡ 신동 🏥',
         theme: 'from-sky-500 to-indigo-500',
         items: [
-          {
-            id: 'wed-office',
-            type: 'break',
-            name: '영통종합사회복지관 주간 일정 🏢',
-            time: '09:30 ~ 10:30',
-            location: '복지관 회의실 / 조회 및 티타임'
-          },
           {
             id: 'wed-call-1',
             elderId: 'khj',
@@ -390,8 +417,21 @@
     let expandedCardId = null;
 
     // 인메모리 저장소 (어르신별 다음 방문 메모 및 완료된 체크박스)
-    const memoryNotes = {};
-    const memoryCheckedBoxes = {};
+    // localStorage와 연동하여 창을 닫거나 새로고침해도 메모와 체크 상태가 유지되도록 처리
+    const memoryNotes = JSON.parse(localStorage.getItem('care_notes') || '{}');
+    const memoryCheckedBoxes = JSON.parse(localStorage.getItem('care_checks') || '{}');
+
+    // 주간 복지관 업무 목록 (기본 추천 항목 포함 및 브라우저 영구 저장)
+    const DEFAULT_WELFARE_TASKS = [
+      { id: 'wf-1', text: '주간 회의 참석 및 주요 전달사항 숙지', completed: false },
+      { id: 'wf-2', text: '출퇴근 실적 및 일일 모니터링 일지 점검', completed: false },
+      { id: 'wf-3', text: '복지관 후원물품 및 안내문 배부품 수령', completed: false },
+      { id: 'wf-4', text: '권희자 어르신 유선 안부 전화 진행', completed: false }
+    ];
+    let welfareTasks = JSON.parse(localStorage.getItem('care_welfare_tasks') || 'null');
+    if (!welfareTasks || !Array.isArray(welfareTasks)) {
+      welfareTasks = DEFAULT_WELFARE_TASKS;
+    }
 
     // -------------------------------------------------------------
     // 3. 날짜 계산 유틸리티
@@ -430,8 +470,107 @@
       const todayStr = formatDateFull(new Date());
       document.getElementById('header-today-text').textContent = `오늘: ${todayStr}`;
 
+      renderWelfareTasks();
       renderWeekdayTabs();
       renderScheduleForDay(selectedWeekday);
+    }
+
+    // -------------------------------------------------------------
+    // 복지관 주간 업무 관리 함수들
+    // -------------------------------------------------------------
+    function renderWelfareTasks() {
+      const container = document.getElementById('welfare-task-list');
+      const badge = document.getElementById('welfare-count-badge');
+      if (!container || !badge) return;
+
+      container.innerHTML = '';
+      const total = welfareTasks.length;
+      const completedCount = welfareTasks.filter(t => t.completed).length;
+      badge.textContent = `${completedCount}/${total} 완료`;
+
+      if (total === 0) {
+        container.innerHTML = `
+          <div class="text-center py-3 text-xs text-slate-400">
+            등록된 주간 복지관 업무가 없습니다. 위 칸에 입력 후 추가해보세요!
+          </div>
+        `;
+        return;
+      }
+
+      welfareTasks.forEach((task, idx) => {
+        const itemEl = document.createElement('div');
+        itemEl.className = `flex items-center justify-between gap-2 p-2 rounded-xl transition-all ${
+          task.completed ? 'bg-slate-100/70 border border-slate-200' : 'bg-indigo-50/40 border border-indigo-100/70 hover:border-indigo-200'
+        }`;
+
+        itemEl.innerHTML = `
+          <label class="flex items-center gap-2.5 flex-1 cursor-pointer select-none">
+            <input type="checkbox" 
+                   ${task.completed ? 'checked' : ''} 
+                   onchange="toggleWelfareTask(${idx})"
+                   class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-400">
+            <span class="text-xs font-medium ${task.completed ? 'line-through text-slate-400' : 'text-slate-800'} leading-tight">
+              ${escapeHtml(task.text)}
+            </span>
+          </label>
+          <button onclick="deleteWelfareTask(${idx})" 
+                  title="삭제" 
+                  class="w-6 h-6 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-white flex items-center justify-center transition-colors">
+            <i class="fa-solid fa-xmark text-xs"></i>
+          </button>
+        `;
+        container.appendChild(itemEl);
+      });
+    }
+
+    function addWelfareTask() {
+      const input = document.getElementById('welfare-input');
+      const text = input.value.trim();
+      if (!text) {
+        showToast('할 일 내용을 입력해주세요.');
+        return;
+      }
+
+      welfareTasks.unshift({
+        id: 'wf-' + Date.now(),
+        text: text,
+        completed: false
+      });
+      input.value = '';
+      saveWelfareTasksToStorage();
+      renderWelfareTasks();
+      showToast('복지관 업무가 추가되었습니다.');
+    }
+
+    function handleWelfareInputKey(e) {
+      if (e.key === 'Enter') {
+        addWelfareTask();
+      }
+    }
+
+    function toggleWelfareTask(index) {
+      if (welfareTasks[index]) {
+        welfareTasks[index].completed = !welfareTasks[index].completed;
+        saveWelfareTasksToStorage();
+        renderWelfareTasks();
+      }
+    }
+
+    function deleteWelfareTask(index) {
+      if (welfareTasks[index]) {
+        welfareTasks.splice(index, 1);
+        saveWelfareTasksToStorage();
+        renderWelfareTasks();
+        showToast('업무 항목이 삭제되었습니다.');
+      }
+    }
+
+    function saveWelfareTasksToStorage() {
+      try {
+        localStorage.setItem('care_welfare_tasks', JSON.stringify(welfareTasks));
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     function renderWeekdayTabs() {
@@ -669,8 +808,25 @@
 
       const noteText = textarea.value.trim();
       memoryNotes[elderId] = noteText;
+      // 브라우저 로컬스토리지에 저장하여 새로고침 시에도 유지
+      try {
+        localStorage.setItem('care_notes', JSON.stringify(memoryNotes));
+      } catch (e) {
+        console.error(e);
+      }
 
-      showToast('메모가 저장되어 다음 방문 시 확인하실 수 있습니다! 📝');
+      showToast('메모가 저장되었습니다! (모든 요일에 자동 연동 📝)');
+      renderScheduleForDay(selectedWeekday);
+    }
+
+    function toggleTaskCheck(checkKey) {
+      memoryCheckedBoxes[checkKey] = !memoryCheckedBoxes[checkKey];
+      try {
+        localStorage.setItem('care_checks', JSON.stringify(memoryCheckedBoxes));
+      } catch (e) {
+        console.error(e);
+      }
+      // 다시 그려서 취소선 스타일 즉각 반영
       renderScheduleForDay(selectedWeekday);
     }
 
