@@ -1,641 +1,703 @@
+```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>영애의 알찬 한 주 플래너</title>
-  <!-- Tailwind CSS CDN -->
+  <title>생활지원사 맞춤 방문 케어 매니저</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts: Gowun Dodum & Noto Sans KR -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            dodum: ['"Gowun Dodum"', 'sans-serif'],
-            sans: ['"Noto Sans KR"', 'sans-serif'],
-          },
-          colors: {
-            cream: {
-              50: '#FDFBF7',
-              100: '#F7F3EB',
-              200: '#EFE8DA',
-            },
-            terracotta: {
-              400: '#E27D60',
-              500: '#C86446',
-            },
-            sage: {
-              100: '#E5ECE3',
-              500: '#698F70',
-              600: '#527357',
-            },
-            honey: {
-              100: '#FFF3D6',
-              400: '#F4B251',
-              500: '#E09B36',
-            }
-          }
-        }
-      }
-    }
-  </script>
-
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
   <style>
     body {
-      background-color: #FDFBF7;
-      background-image: radial-gradient(#E8DFC9 0.75px, transparent 0.75px);
-      background-size: 20px 20px;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
-    .completed-item {
-      text-decoration: line-through;
-      opacity: 0.55;
-    }
-    @media print {
-      body { background: white !important; }
-      .no-print { display: none !important; }
-      .print-shadow-none { box-shadow: none !important; }
-    }
-    /* Custom scrollbar */
+    /* 커스텀 스크롤바 */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
     ::-webkit-scrollbar-thumb {
-      background: #D8CEBC;
+      background: #cbd5e1;
       border-radius: 9999px;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #B8AC98;
+    /* 카드 확장 트랜지션 */
+    .expand-content {
+      transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease-out;
     }
   </style>
 </head>
-<body class="font-sans text-stone-800 antialiased min-h-screen p-3 sm:p-6 md:p-8 flex flex-col justify-between">
+<body class="bg-amber-50/50 min-h-screen text-slate-800 pb-16 antialiased">
 
-  <!-- Main Container -->
-  <div class="max-w-6xl mx-auto w-full">
-
-    <!-- Header Section -->
-    <header class="relative bg-white/90 backdrop-blur-sm rounded-3xl border-2 border-amber-200/80 p-6 md:p-8 shadow-sm mb-6 text-center overflow-hidden">
-      <!-- Decorative Flower Ornaments -->
-      <div class="absolute -top-6 -left-6 text-amber-200/40 text-7xl select-none pointer-events-none rotate-12">
-        <i class="fa-solid fa-spa"></i>
-      </div>
-      <div class="absolute -bottom-6 -right-6 text-rose-200/40 text-7xl select-none pointer-events-none -rotate-12">
-        <i class="fa-solid fa-seedling"></i>
-      </div>
-
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100/70 text-amber-800 text-xs font-semibold tracking-wider mb-2">
-        <i class="fa-regular fa-calendar-check"></i> 10/7 (수) ~ 10/11 (일) 위클리 플랜
-      </div>
-      
-      <h1 class="font-dodum text-2xl sm:text-3xl md:text-4xl text-stone-800 font-bold tracking-tight">
-        ✨ 영애의 알찬 한 주 플래너 ✨
-      </h1>
-
-      <p class="font-dodum text-sm sm:text-base text-rose-600/90 mt-2 font-medium flex items-center justify-center gap-2">
-        <span>♥ 일도, 취미도, 쉼도 완벽한 한 주 ♥</span>
-      </p>
-
-      <!-- Overall Progress Bar -->
-      <div class="mt-5 max-w-md mx-auto bg-stone-100 rounded-full h-3.5 p-0.5 overflow-hidden shadow-inner flex items-center border border-stone-200">
-        <div id="weekly-progress" class="bg-gradient-to-r from-amber-400 via-rose-400 to-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
-      </div>
-      <div class="mt-2 text-xs font-medium text-stone-500 flex justify-between max-w-md mx-auto px-1">
-        <span>한 주 달성률</span>
-        <span id="progress-percent" class="font-bold text-stone-700">0% (0/15)</span>
-      </div>
-
-      <!-- Action Toolbar -->
-      <div class="no-print mt-5 pt-4 border-t border-stone-100 flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm">
-        <button onclick="filterCategory('all')" id="filter-all" class="filter-btn active px-3 py-1.5 rounded-full font-medium transition bg-stone-800 text-white shadow-sm">
-          전체 보기
-        </button>
-        <button onclick="filterCategory('work')" id="filter-work" class="filter-btn px-3 py-1.5 rounded-full font-medium transition bg-stone-100 text-stone-600 hover:bg-stone-200">
-          🏢 업무·어르신 안부
-        </button>
-        <button onclick="filterCategory('hobby')" id="filter-hobby" class="filter-btn px-3 py-1.5 rounded-full font-medium transition bg-stone-100 text-stone-600 hover:bg-stone-200">
-          🥁 취미·음악
-        </button>
-        <button onclick="filterCategory('rest')" id="filter-rest" class="filter-btn px-3 py-1.5 rounded-full font-medium transition bg-stone-100 text-stone-600 hover:bg-stone-200">
-          🌸 힐링·휴식
-        </button>
-        
-        <div class="h-4 w-[1px] bg-stone-200 hidden sm:block"></div>
-
-        <button onclick="window.print()" class="px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 hover:bg-amber-100 font-medium transition flex items-center gap-1.5 border border-amber-200">
-          <i class="fa-solid fa-print"></i> 인쇄 / PDF 저장
-        </button>
-        <button onclick="resetChecks()" class="px-3 py-1.5 rounded-full bg-stone-50 text-stone-600 hover:bg-stone-100 font-medium transition flex items-center gap-1.5 border border-stone-200">
-          <i class="fa-solid fa-rotate-left"></i> 초기화
-        </button>
-      </div>
-    </header>
-
-    <!-- Planner Grid -->
-    <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-
-      <!-- 10/7 (수) -->
-      <section class="day-card bg-white rounded-3xl p-5 border-2 border-stone-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full" data-day="wed">
-        <!-- Day Header -->
-        <div class="flex items-center justify-between pb-3 border-b-2 border-amber-100 mb-4">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-amber-500 text-white font-dodum">10/7 (수)</span>
-              <span class="text-xs text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded-md">현장 방문 & 활력</span>
-            </div>
-            <h2 class="font-dodum text-lg font-bold text-stone-800 mt-1">현장 방문 & 활력 데이</h2>
-          </div>
-          <span class="text-amber-500 text-2xl"><i class="fa-solid fa-person-walking"></i></span>
+  <!-- 최상단 헤더 -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-amber-100 shadow-sm px-4 py-3">
+    <div class="max-w-xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-rose-400 flex items-center justify-center text-white shadow-md shadow-amber-200">
+          <i class="fa-solid fa-heart-pulse text-lg"></i>
         </div>
-
-        <!-- Task List -->
-        <ul class="space-y-3 flex-1 text-sm">
-          <!-- Item 1 -->
-          <li class="task-item p-2.5 rounded-xl border border-stone-100 hover:bg-stone-50/80 transition" data-cat="work" data-id="wed-1">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-amber-600 focus:ring-amber-500 accent-amber-600">
-              <div class="item-content flex-1">
-                <div class="flex items-center justify-between">
-                  <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-stone-100 rounded">09:30 ~ 10:30</span>
-                  <span class="text-xs text-stone-400">☕ 티타임</span>
-                </div>
-                <p class="font-medium text-stone-800 mt-1">영통 복지관 (주간조회 & 티타임)</p>
-              </div>
-            </label>
-          </li>
-
-          <!-- Item 2 -->
-          <li class="task-item p-2.5 rounded-xl border border-stone-100 hover:bg-stone-50/80 transition" data-cat="work" data-id="wed-2">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-amber-600 focus:ring-amber-500 accent-amber-600">
-              <div class="item-content flex-1">
-                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-stone-100 rounded">10:30경</span>
-                <p class="font-medium text-stone-800 mt-1 flex items-center gap-1">
-                  📞 <span class="text-amber-800 font-semibold">권희자 어르신</span> 전화 안부
-                </p>
-              </div>
-            </label>
-          </li>
-
-          <!-- Item 3 -->
-          <li class="task-item p-2.5 rounded-xl border border-amber-100 bg-amber-50/30 hover:bg-amber-50/60 transition" data-cat="work" data-id="wed-3">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-amber-600 focus:ring-amber-500 accent-amber-600">
-              <div class="item-content flex-1">
-                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-white rounded border border-amber-200">11:00 ~ 11:40</span>
-                <p class="font-medium text-stone-800 mt-1">
-                  👵 <strong class="text-stone-900">황명숙 어르신</strong> 방문
-                </p>
-                <p class="text-xs text-stone-500 mt-0.5 pl-5">망포동 기선빌라 103호</p>
-              </div>
-            </label>
-          </li>
-
-          <!-- Item 4 -->
-          <li class="task-item p-2.5 rounded-xl border border-amber-100 bg-amber-50/30 hover:bg-amber-50/60 transition" data-cat="work" data-id="wed-4">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-amber-600 focus:ring-amber-500 accent-amber-600">
-              <div class="item-content flex-1">
-                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-white rounded border border-amber-200">11:50 ~ 12:30</span>
-                <p class="font-medium text-stone-800 mt-1">
-                  👵 <strong class="text-stone-900">송정인 어르신</strong> 방문
-                </p>
-                <p class="text-xs text-stone-500 mt-0.5 pl-5">영통 벽적골 주공8단지</p>
-              </div>
-            </label>
-          </li>
-
-          <!-- Item 5 -->
-          <li class="task-item p-2.5 rounded-xl border border-stone-100 hover:bg-stone-50/80 transition" data-cat="rest" data-id="wed-5">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-amber-600 focus:ring-amber-500 accent-amber-600">
-              <div class="item-content flex-1">
-                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-stone-100 rounded">12:30 ~ 13:20</span>
-                <p class="font-medium text-stone-800 mt-1">🍱 점심 식사 & 꿀맛 휴식</p>
-              </div>
-            </label>
-          </li>
-
-          <!-- Item 6 -->
-          <li class="task-item p-2.5 rounded-xl border-2 border-dashed border-amber-300 bg-amber-50/50 hover:bg-amber-50 transition" data-cat="work" data-id="wed-6">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-amber-600 focus:ring-amber-500 accent-amber-600">
-              <div class="item-content flex-1">
-                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-white rounded border border-amber-200">13:30 ~ 14:10</span>
-                <p class="font-medium text-stone-800 mt-1">
-                  👴 <strong class="text-stone-900">손금천 어르신</strong> 방문
-                </p>
-                <div class="text-xs text-stone-600 mt-1 pl-5 space-y-0.5">
-                  <p>📍 신동 빌라 202호</p>
-                  <p class="text-rose-700 font-semibold flex items-center gap-1">
-                    <span>🔔 도어락: 1378</span>
-                    <button type="button" onclick="navigator.clipboard.writeText('1378'); alert('도어락 번호 [1378]가 복사되었습니다!');" class="text-[10px] bg-rose-100 hover:bg-rose-200 text-rose-800 px-1.5 py-0.5 rounded transition">
-                      복사
-                    </button>
-                  </p>
-                </div>
-                <!-- Milestone Badge -->
-                <div class="mt-2 text-xs font-bold text-emerald-800 bg-emerald-100/90 py-1 px-2 rounded-lg text-center shadow-xs">
-                  🎉 ★ 이번 주 방문 업무 완료! ★
-                </div>
-              </div>
-            </label>
-          </li>
-
-          <!-- Item 7 -->
-          <li class="task-item p-2.5 rounded-xl border border-stone-100 hover:bg-stone-50/80 transition" data-cat="hobby" data-id="wed-7">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-amber-600 focus:ring-amber-500 accent-amber-600">
-              <div class="item-content flex-1">
-                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-stone-100 rounded">16:00</span>
-                <p class="font-medium text-stone-800 mt-1">🥁 드럼 연습</p>
-                <p class="text-xs text-rose-500 font-medium pl-5">신나게 스트레스 타파!</p>
-              </div>
-            </label>
-          </li>
-
-          <!-- Item 8 -->
-          <li class="task-item p-2.5 rounded-xl border border-stone-100 hover:bg-stone-50/80 transition" data-cat="rest" data-id="wed-8">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-amber-600 focus:ring-amber-500 accent-amber-600">
-              <div class="item-content flex-1">
-                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-stone-100 rounded">19:00</span>
-                <p class="font-medium text-stone-800 mt-1">🧘‍♀️ 커뮤니티 센터 매트 필라테스</p>
-              </div>
-            </label>
-          </li>
-        </ul>
-      </section>
-
-      <!-- 10/8 (목) -->
-      <section class="day-card bg-white rounded-3xl p-5 border-2 border-stone-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full" data-day="thu">
-        <!-- Day Header -->
-        <div class="flex items-center justify-between pb-3 border-b-2 border-rose-100 mb-4">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-rose-500 text-white font-dodum">10/8 (목)</span>
-              <span class="text-xs text-rose-700 font-semibold bg-rose-50 px-2 py-0.5 rounded-md">문화·특강</span>
-            </div>
-            <h2 class="font-dodum text-lg font-bold text-stone-800 mt-1">여유로운 힐링 데이</h2>
-          </div>
-          <span class="text-rose-400 text-2xl"><i class="fa-solid fa-microphone-lines"></i></span>
-        </div>
-
-        <!-- Task List -->
-        <ul class="space-y-3 flex-1 text-sm">
-          <!-- Item 1 -->
-          <li class="task-item p-2.5 rounded-xl border border-stone-100 hover:bg-stone-50/80 transition" data-cat="rest" data-id="thu-1">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-rose-500 focus:ring-rose-400 accent-rose-500">
-              <div class="item-content flex-1">
-                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-stone-100 rounded">오전</span>
-                <p class="font-medium text-stone-800 mt-1">🏠 집에서 푹 쉬기 & 점심 든든히 먹기</p>
-              </div>
-            </label>
-          </li>
-
-          <!-- Item 2 -->
-          <li class="task-item p-2.5 rounded-xl border-2 border-amber-300 bg-amber-50/40 hover:bg-amber-50/80 transition" data-cat="work" data-id="thu-2">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-rose-500 focus:ring-rose-400 accent-rose-500">
-              <div class="item-content flex-1">
-                <span class="font-bold text-amber-900 text-xs px-1.5 py-0.5 bg-amber-200/80 rounded">12:00 필수 체크!</span>
-                <p class="font-semibold text-stone-900 mt-1">
-                  📱 <span class="text-rose-600 font-bold">[출근 실적 입력]</span> 후 광교 경기홀 출발
-                </p>
-              </div>
-            </label>
-          </li>
-
-          <!-- Item 3 -->
-          <li class="task-item p-2.5 rounded-xl border border-stone-100 hover:bg-stone-50/80 transition" data-cat="work" data-id="thu-3">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-rose-500 focus:ring-rose-400 accent-rose-500">
-              <div class="item-content flex-1">
-                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-stone-100 rounded">12:30 ~ 13:00</span>
-                <p class="font-medium text-stone-800 mt-1">📸 경기홀 도착 등록 & 인증샷 찰칵!</p>
-              </div>
-            </label>
-          </li>
-
-          <!-- Item 4 -->
-          <li class="task-item p-3 rounded-xl border border-rose-200 bg-rose-50/30 hover:bg-rose-50/60 transition" data-cat="rest" data-id="thu-4">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-rose-500 focus:ring-rose-400 accent-rose-500">
-              <div class="item-content flex-1">
-                <span class="font-bold text-rose-800 text-xs px-1.5 py-0.5 bg-rose-100 rounded">13:00 ~ 17:10</span>
-                <p class="font-bold text-stone-900 mt-1 text-base">🎤 힐링 콘서트</p>
-                <div class="text-xs text-stone-600 mt-1 pl-1 space-y-1">
-                  <p class="flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
-                    <span>이호선 교수 특강</span>
-                  </p>
-                  <p class="flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
-                    <span>가수 이도진 & 밴드 축하 공연 🎶</span>
-                  </p>
-                </div>
-              </div>
-            </label>
-          </li>
-
-          <!-- Item 5 -->
-          <li class="task-item p-2.5 rounded-xl border-2 border-amber-300 bg-amber-50/40 hover:bg-amber-50/80 transition" data-cat="work" data-id="thu-5">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-rose-500 focus:ring-rose-400 accent-rose-500">
-              <div class="item-content flex-1">
-                <span class="font-bold text-amber-900 text-xs px-1.5 py-0.5 bg-amber-200/80 rounded">17:10 ~ 17:30 마감</span>
-                <p class="font-semibold text-stone-900 mt-1">
-                  설문 참여 & 📱 <span class="text-rose-600 font-bold">[17:30 퇴근 실적 입력]</span> 후 기분 좋게 귀가!
-                </p>
-              </div>
-            </label>
-          </li>
-        </ul>
-      </section>
-
-      <!-- 10/9 (금·한글날) -->
-      <section class="day-card bg-white rounded-3xl p-5 border-2 border-stone-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full" data-day="fri">
-        <!-- Day Header -->
-        <div class="flex items-center justify-between pb-3 border-b-2 border-emerald-100 mb-4">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-emerald-600 text-white font-dodum">10/9 (금)</span>
-              <span class="text-xs text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md">한글날 공휴일</span>
-            </div>
-            <h2 class="font-dodum text-lg font-bold text-stone-800 mt-1">꽃 피는 연휴</h2>
-          </div>
-          <span class="text-emerald-500 text-2xl"><i class="fa-solid fa-fan"></i></span>
-        </div>
-
-        <!-- Task List -->
-        <ul class="space-y-3 flex-1 text-sm">
-          <!-- Item 1 -->
-          <li class="task-item p-3 rounded-xl border border-stone-200 bg-stone-50/50 hover:bg-stone-50 transition" data-cat="work" data-id="fri-1">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 accent-emerald-600">
-              <div class="item-content flex-1">
-                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-white rounded border border-stone-200">08:00 ~</span>
-                <p class="font-semibold text-stone-900 mt-1">📞 어르신 전수 안부 전화</p>
-                <p class="text-xs text-emerald-700 font-medium mt-1">💡 "오전에 집중해서 빠르게 완료하기!"</p>
-              </div>
-            </label>
-          </li>
-
-          <!-- Item 2 -->
-          <li class="task-item p-3 rounded-xl border-2 border-rose-200 bg-rose-50/30 hover:bg-rose-50/60 transition" data-cat="hobby" data-id="fri-2">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 accent-emerald-600">
-              <div class="item-content flex-1">
-                <span class="font-bold text-rose-800 text-xs px-1.5 py-0.5 bg-rose-100 rounded">14:00 ~ 쭉~~</span>
-                <p class="font-bold text-stone-900 mt-1 text-base flex items-center gap-1.5">
-                  🌸 자이언트 플라워 수업
-                </p>
-                <p class="text-xs text-stone-600 mt-1">✂️ 손끝으로 만드는 예쁜 공예 힐링 시간</p>
-              </div>
-            </label>
-          </li>
-
-          <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/70 text-xs text-amber-900 mt-4">
-            <p class="font-bold mb-1 flex items-center gap-1"><i class="fa-regular fa-lightbulb"></i> 금요일 응원 한마디</p>
-            오전 안부 전화를 마치면 오후에는 온전히 영애 님만의 꽃 예술과 여유가 펼쳐집니다!
-          </div>
-        </ul>
-      </section>
-
-      <!-- 10/10 (토) -->
-      <section class="day-card bg-white rounded-3xl p-5 border-2 border-stone-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full" data-day="sat">
-        <!-- Day Header -->
-        <div class="flex items-center justify-between pb-3 border-b-2 border-indigo-100 mb-4">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-indigo-500 text-white font-dodum">10/10 (토)</span>
-              <span class="text-xs text-indigo-700 font-semibold bg-indigo-50 px-2 py-0.5 rounded-md">음악 & 여가</span>
-            </div>
-            <h2 class="font-dodum text-lg font-bold text-stone-800 mt-1">음악 & 충전</h2>
-          </div>
-          <span class="text-indigo-500 text-2xl"><i class="fa-solid fa-guitar"></i></span>
-        </div>
-
-        <!-- Task List -->
-        <ul class="space-y-3 flex-1 text-sm">
-          <!-- Item 1 -->
-          <li class="task-item p-3 rounded-xl border border-indigo-100 bg-indigo-50/30 hover:bg-indigo-50/60 transition" data-cat="hobby" data-id="sat-1">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 accent-indigo-600">
-              <div class="item-content flex-1">
-                <span class="font-bold text-indigo-800 text-xs px-1.5 py-0.5 bg-indigo-100 rounded">낮 시간</span>
-                <p class="font-bold text-stone-900 mt-1 flex items-center gap-1.5">
-                  🎸 밴드 합주 연습
-                </p>
-                <p class="text-xs text-stone-500 mt-0.5">합주로 음악 에너지 가득 채우기!</p>
-              </div>
-            </label>
-          </li>
-
-          <!-- Item 2 -->
-          <li class="task-item p-3 rounded-xl border border-stone-100 hover:bg-stone-50/80 transition" data-cat="rest" data-id="sat-2">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 accent-indigo-600">
-              <div class="item-content flex-1">
-                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-stone-100 rounded">연습 후</span>
-                <p class="font-medium text-stone-800 mt-1 flex items-center gap-1.5">
-                  🛋️ 푹 쉬면서 체력 완충
-                </p>
-                <p class="text-xs text-stone-400 mt-0.5">일요일 나들이를 위한 꿀잠과 휴식</p>
-              </div>
-            </label>
-          </li>
-        </ul>
-      </section>
-
-      <!-- 10/11 (일) -->
-      <section class="day-card bg-white rounded-3xl p-5 border-2 border-stone-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full md:col-span-2 lg:col-span-2" data-day="sun">
-        <!-- Day Header -->
-        <div class="flex items-center justify-between pb-3 border-b-2 border-amber-200 mb-4">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-stone-800 text-white font-dodum">10/11 (일)</span>
-              <span class="text-xs text-stone-700 font-semibold bg-stone-100 px-2 py-0.5 rounded-md">나들이 & 문화</span>
-            </div>
-            <h2 class="font-dodum text-lg font-bold text-stone-800 mt-1">마음 충전 & 나들이</h2>
-          </div>
-          <span class="text-amber-600 text-2xl"><i class="fa-solid fa-champagne-glasses"></i></span>
-        </div>
-
-        <!-- Task List (2-column on larger screens) -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-1 text-sm">
-          <!-- Item 1 -->
-          <div class="task-item p-3 rounded-2xl border border-stone-200 bg-stone-50/50 hover:bg-stone-50 transition" data-cat="rest" data-id="sun-1">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-stone-800 focus:ring-stone-600 accent-stone-800">
-              <div class="item-content flex-1">
-                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-white rounded border border-stone-200">오전 / 낮</span>
-                <p class="font-bold text-stone-900 mt-1">⛪ 교회 예배</p>
-                <p class="text-xs text-stone-500 mt-1">평온하고 은혜로운 마음 다지기</p>
-              </div>
-            </label>
-          </div>
-
-          <!-- Item 2 -->
-          <div class="task-item p-3 rounded-2xl border border-rose-100 bg-rose-50/30 hover:bg-rose-50/70 transition" data-cat="rest" data-id="sun-2">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-stone-800 focus:ring-stone-600 accent-stone-800">
-              <div class="item-content flex-1">
-                <span class="font-bold text-rose-700 text-xs px-1.5 py-0.5 bg-rose-100 rounded">저녁</span>
-                <p class="font-bold text-stone-900 mt-1">🍽️ 민경과 맛있는 저녁</p>
-                <p class="text-xs text-stone-600 mt-1">행복한 수다 & 맛있는 음식 충전</p>
-              </div>
-            </label>
-          </div>
-
-          <!-- Item 3 -->
-          <div class="task-item p-3 rounded-2xl border-2 border-amber-300 bg-amber-50/60 hover:bg-amber-50 transition" data-cat="rest" data-id="sun-3">
-            <label class="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-stone-800 focus:ring-stone-600 accent-stone-800">
-              <div class="item-content flex-1">
-                <span class="font-bold text-amber-800 text-xs px-1.5 py-0.5 bg-amber-100 rounded">밤</span>
-                <p class="font-bold text-stone-900 mt-1">🏮 연무대(동장대) 공연 관람</p>
-                <div class="mt-2 text-xs font-bold text-rose-600 bg-white/80 py-1 px-2 rounded border border-rose-200 inline-block">
-                  🧥 겉옷 필수 챙기기! (밤바람 쌀쌀)
-                </div>
-              </div>
-            </label>
-          </div>
-        </div>
-      </section>
-
-    </main>
-
-    <!-- Quick Memo / Note Section -->
-    <section class="mt-6 bg-white/80 rounded-3xl p-5 border border-stone-200 text-xs text-stone-600 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <span class="p-2 rounded-xl bg-amber-100 text-amber-800 font-bold text-sm">📌 체크 포인트</span>
-        <div class="space-y-0.5">
-          <p>• <strong>10/7 (수):</strong> 손금천 어르신 댁(신동 빌라 202호) 도어락 <strong>1378</strong></p>
-          <p>• <strong>10/8 (목):</strong> 12:00 출근 실적 & 17:30 퇴근 실적 입력 깜빡하지 않기!</p>
-          <p>• <strong>10/11 (일):</strong> 동장대 야외 공연 관람 시 밤공기가 쌀쌀하니 도톰한 겉옷 챙기기</p>
+        <div>
+          <h1 class="text-lg font-bold text-slate-900 leading-tight">영애의 케어 스케줄러</h1>
+          <p class="text-xs text-amber-700 font-medium" id="header-today-text">실시간 날짜 로딩중...</p>
         </div>
       </div>
-      <div class="text-right text-stone-400">
-        일정을 클릭하면 완료 표시 및 브라우저에 자동 저장됩니다.
+      <button onclick="goToToday()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 hover:bg-amber-200 active:scale-95 transition-all">
+        <i class="fa-solid fa-calendar-day"></i>
+        <span>오늘로</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 메인 컨테이너 -->
+  <main class="max-w-xl mx-auto px-4 pt-4">
+
+    <!-- 요일 선택 탭바 (실제 현재 주의 날짜 매핑) -->
+    <div class="bg-white rounded-2xl p-2 shadow-sm border border-slate-100 mb-4">
+      <div class="grid grid-cols-5 gap-1.5" id="weekday-tabs">
+        <!-- JS로 동적 렌더링 (월~금) -->
       </div>
-    </section>
+    </div>
 
-    <!-- Footer -->
-    <footer class="mt-8 mb-4 text-center text-xs text-stone-400">
-      <p class="font-dodum text-sm text-stone-600 mb-1">언제나 따뜻하고 활력 넘치는 영애 님의 일주일을 응원합니다 💐</p>
-      <p>© 2026 Young-ae's Weekly Planner</p>
-    </footer>
+    <!-- 오늘 요일 테마 헤더 카드 -->
+    <div id="day-summary-card" class="bg-gradient-to-br from-amber-500 to-orange-400 rounded-2xl p-4 text-white shadow-lg shadow-amber-500/20 mb-4 flex items-center justify-between">
+      <div>
+        <div class="flex items-center gap-2">
+          <span id="badge-day-label" class="px-2.5 py-0.5 rounded-full bg-white/20 text-xs font-bold tracking-wide backdrop-blur-sm">월요일</span>
+          <span id="badge-date-string" class="text-xs text-amber-100 font-medium">10월 12일</span>
+        </div>
+        <h2 id="day-route-title" class="text-xl font-black mt-1">망포동 집중 방문 데이</h2>
+      </div>
+      <div class="text-right">
+        <div class="text-xs text-amber-100">케어 대상</div>
+        <div id="day-target-count" class="text-2xl font-black">3명</div>
+      </div>
+    </div>
 
-  </div>
+    <!-- 방문 스케줄 리스트 컨테이너 -->
+    <div class="space-y-3" id="schedule-list">
+      <!-- 어르신 카드들이 JS를 통해 삽입됩니다 -->
+    </div>
 
-  <!-- Interactive JavaScript -->
+    <!-- 토스트 알림창 UI -->
+    <div id="toast-modal" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 text-white px-5 py-3 rounded-full text-sm font-medium shadow-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2">
+      <i class="fa-solid fa-circle-check text-emerald-400"></i>
+      <span id="toast-message">메모가 안전하게 저장되었습니다!</span>
+    </div>
+
+  </main>
+
   <script>
-    const STORAGE_KEY = 'youngae_planner_checked_state';
-
-    // Load saved states
-    function loadTasks() {
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      const checkboxes = document.querySelectorAll('.task-checkbox');
-
-      checkboxes.forEach(cb => {
-        const item = cb.closest('.task-item');
-        const id = item.getAttribute('data-id');
-        if (saved[id]) {
-          cb.checked = true;
-          item.classList.add('completed-item');
-        } else {
-          cb.checked = false;
-          item.classList.remove('completed-item');
-        }
-
-        cb.addEventListener('change', () => {
-          if (cb.checked) {
-            item.classList.add('completed-item');
-          } else {
-            item.classList.remove('completed-item');
+    // -------------------------------------------------------------
+    // 1. 기본 마스터 데이터 (어르신별 주간 일정 및 기본 체크리스트)
+    // -------------------------------------------------------------
+    const WEEK_SCHEDULE = {
+      1: { // 월
+        dayName: '월요일',
+        routeTitle: '망포동 집중 방문 데이 🏡',
+        theme: 'from-amber-500 to-orange-400',
+        items: [
+          {
+            id: 'mon-1',
+            elderId: 'ajh',
+            name: '안정훈 어르신',
+            time: '10:10 ~ 10:45',
+            location: '망포동 세흥빌라 나동 203호',
+            tag: '방문',
+            defaultChecks: [
+              '화장실 문턱 높이 낙상 위험 점검 및 발판 상태 확인',
+              '두피 상태 및 환부 청결 확인',
+              '혈압 및 가을철 기본 건강 안부 묻기',
+              '실내 환기 및 복약 여부 점검'
+            ]
+          },
+          {
+            id: 'mon-2',
+            elderId: 'kko',
+            name: '김금옥 어르신',
+            time: '10:50 ~ 11:30',
+            location: '망포동 세흥빌라 나동 202호 (같은 동 이동)',
+            tag: '방문',
+            defaultChecks: [
+              '허리 통증 정도 확인 및 파스/온찜질 안내',
+              '주방 싱크대 및 냉장고 식품 신선도 체크',
+              '물 자주 마시기 및 실내 가벼운 스트레칭 권유',
+              '우편물 및 공과금 고지서 점검'
+            ]
+          },
+          {
+            id: 'mon-lunch',
+            type: 'break',
+            name: '점심 식사 및 휴식 🍱',
+            time: '12:00 ~ 12:30',
+            location: '망포동 인근 편한 식당 또는 휴식처'
+          },
+          {
+            id: 'mon-3',
+            elderId: 'kms',
+            name: '김말순 어르신',
+            time: '13:00 ~ 13:40',
+            location: '망포동 LG빌리지2차 201동 2106호',
+            tag: '방문',
+            defaultChecks: [
+              '주방 가스레인지/인덕션 화재 안전 장치 확인',
+              '간병 피로도 경청 및 따뜻한 정서 지지 말벗',
+              '복약 시간표 및 정기 병원 방문 일정 확인',
+              '낙상 위험 구역(베란다, 욕실) 매트 점검'
+            ]
           }
-          saveTasks();
-          updateProgress();
-        });
-      });
+        ]
+      },
+      2: { // 화
+        dayName: '화요일',
+        routeTitle: '신동 ➡️️ 영통 연계 데이 🚗',
+        theme: 'from-emerald-500 to-teal-500',
+        items: [
+          {
+            id: 'tue-1',
+            elderId: 'ljs',
+            name: '이정순 어르신 (집중 케어 2시간 ⭐)',
+            time: '10:00 ~ 12:00',
+            location: '신동 단독주택 (신원로 39-9)',
+            tag: '집중 2시간',
+            badgeColor: 'bg-rose-100 text-rose-700',
+            defaultChecks: [
+              '도착 후 체온 및 당일 컨디션 확인',
+              '우편함 고지서 및 휴대폰 수신 문자/알림 확인 꼼꼼히 해드리기',
+              '말벗 케어: 최근 불편하신 점이나 불안한 부분 경청',
+              '실내 정리 정돈 및 주방 식수/간식 보관 상태 체크',
+              '가벼운 손발 마사지 및 실내 보행 연습 보조'
+            ]
+          },
+          {
+            id: 'tue-lunch',
+            type: 'break',
+            name: '점심 식사 및 영통 이동 🍱',
+            time: '12:00 ~ 12:30',
+            location: '신동 ➡️ 영통 벽적골 방면 이동'
+          },
+          {
+            id: 'tue-2',
+            elderId: 'kib',
+            name: '김입분 어르신',
+            time: '13:00 ~ 13:50',
+            location: '영통동 벽적골 한신 811동 106호',
+            tag: '방문',
+            defaultChecks: [
+              '정면에서 입모양 크고 또렷하게 대화(난청 배려)',
+              '우편물 및 복지 혜택 안내장 도착분 확인',
+              '보청기 작동 상태 및 배터리 잔량 점검',
+              '가을철 관절 통증 및 낙상 방지 슬리퍼 착용 권유'
+            ]
+          }
+        ]
+      },
+      3: { // 수
+        dayName: '수요일',
+        routeTitle: '복지관 & 벽적골 ➡️ 신동 🏥',
+        theme: 'from-sky-500 to-indigo-500',
+        items: [
+          {
+            id: 'wed-office',
+            type: 'break',
+            name: '영통종합사회복지관 주간 일정 🏢',
+            time: '09:30 ~ 10:30',
+            location: '복지관 회의실 / 조회 및 티타임'
+          },
+          {
+            id: 'wed-call-1',
+            elderId: 'khj',
+            name: '권희자 어르신 (유선 안부 📞)',
+            time: '10:30경 (복지관 출발 전)',
+            location: '유선 전화 상담',
+            tag: '전화 안부',
+            badgeColor: 'bg-purple-100 text-purple-700',
+            defaultChecks: [
+              '오늘 건강 상태 및 식사 여부 확인',
+              '환절기 감기 기운 및 보일러 작동 상태 체크',
+              '주말 사이 특이사항 여부 경청'
+            ]
+          },
+          {
+            id: 'wed-1',
+            elderId: 'sji',
+            name: '송정인 어르신',
+            time: '10:40 ~ 11:20',
+            location: '영통동 벽적골 주공8단지 801동 1505호',
+            tag: '방문',
+            defaultChecks: [
+              '12월 예정된 이사 진행 상황 및 서류 확인',
+              '이사 준비 중 심리적 불안감 지지 및 경청',
+              '기본 혈압 및 식사 잘 챙기시는지 확인'
+            ]
+          },
+          {
+            id: 'wed-2',
+            elderId: 'skc',
+            name: '손금천 어르신',
+            time: '11:30 ~ 12:10',
+            location: '신동 빌라 202호 (공동현관 🔔1378)',
+            tag: '방문',
+            defaultChecks: [
+              '공동현관 호출 후 안전하게 방문',
+              '보훈 가족 건강 안부 및 일상 활력 체크',
+              '무릎 관절 상태 및 정형외과 약 복용 확인'
+            ]
+          },
+          {
+            id: 'wed-lunch',
+            type: 'break',
+            name: '점심 식사 및 휴식 🍱',
+            time: '12:10 ~ 12:50',
+            location: '신동 인근'
+          },
+          {
+            id: 'wed-3',
+            elderId: 'ljs',
+            name: '이정순 어르신 (오후 케어 1시간)',
+            time: '13:00 ~ 14:00',
+            location: '신동 단독주택 (신원로 39-9)',
+            tag: '방문 1시간',
+            badgeColor: 'bg-rose-100 text-rose-700',
+            defaultChecks: [
+              '점심 식사 드셨는지 확인 및 소화 상태 체크',
+              '전날 말씀하셨던 심부름 및 문자 확인 결과 안내',
+              '마당 및 현관문 잠금장치 안전 점검'
+            ]
+          }
+        ]
+      },
+      4: { // 목
+        dayName: '목요일',
+        routeTitle: '망포 세흥 ➡️ 신동 케어 🏃',
+        theme: 'from-violet-500 to-fuchsia-500',
+        items: [
+          {
+            id: 'thu-1',
+            elderId: 'phr',
+            name: '박향례 어르신',
+            time: '11:20 ~ 11:40',
+            location: '망포동 세흥아파트 209호 (11:20 귀가 맞춤)',
+            tag: '방문',
+            defaultChecks: [
+              '11:20 복지시설 귀가 시간에 맞춰 안전 맞이',
+              '외출 복장 정리 및 손 씻기 보조',
+              '가을철 외출 시 지팡이 사용 상태 점검'
+            ]
+          },
+          {
+            id: 'thu-2',
+            elderId: 'sgj',
+            name: '신길지 어르신',
+            time: '11:40 ~ 12:00',
+            location: '망포동 세흥아파트 302호 (윗층 연계)',
+            tag: '방문',
+            defaultChecks: [
+              '같은 아파트 윗층 방문 / 최근 후원품 보관 및 섭취 확인',
+              '복약 체크 및 혈압 정상 범위 확인',
+              '실내 쓰레기 배출 보조'
+            ]
+          },
+          {
+            id: 'thu-lunch',
+            type: 'break',
+            name: '12시 점심 식사 및 이동 🍱',
+            time: '12:00 ~ 12:40',
+            location: '망포동 ➡️ 신동 이동'
+          },
+          {
+            id: 'thu-3',
+            elderId: 'ljs',
+            name: '이정순 어르신 (오후 케어 1시간)',
+            time: '13:00 ~ 14:00',
+            location: '신동 단독주택 (신원로 39-9)',
+            tag: '방문 1시간',
+            badgeColor: 'bg-rose-100 text-rose-700',
+            defaultChecks: [
+              '주 후반부 기력 및 식욕 상태 확인',
+              '주말 동안 드실 음식 및 비상 연락망 점검',
+              '어르신 말벗 및 따뜻한 주말 응원'
+            ]
+          }
+        ]
+      },
+      5: { // 금
+        dayName: '금요일',
+        routeTitle: '망포동 주간 마무리 데이 🌸',
+        theme: 'from-rose-500 to-pink-500',
+        items: [
+          {
+            id: 'fri-1',
+            elderId: 'hms',
+            name: '황명숙 어르신',
+            time: '10:00 ~ 11:00 (시간엄수)',
+            location: '망포동 기선빌라 103호',
+            tag: '방문 1시간',
+            defaultChecks: [
+              '고정 방문 약속 시간(10시) 엄수',
+              '중립적이고 차분한 태도로 경청 위주 소통',
+              '주방 및 화장실 누수/안전 시설물 체크',
+              '가을철 건조 피부 관리 및 로션 도포 보조'
+            ]
+          },
+          {
+            id: 'fri-2',
+            elderId: 'pjs',
+            name: '박재순 어르신',
+            time: '11:10 ~ 11:50',
+            location: '망포동 원룸 (영통로90번길 4-12)',
+            tag: '대면 필수',
+            defaultChecks: [
+              '전화 난청이 심하므로 반드시 대면 방문하여 안부 확인',
+              '원룸 내 환기 상태 및 보일러 가동 점검',
+              '처방약 남아있는 수량 체크 및 병원 방문일 확인',
+              '비상 연락 호출벨(응급안전벨) 정상 작동 여부 확인'
+            ]
+          },
+          {
+            id: 'fri-3',
+            elderId: 'eys',
+            name: '엄영순 어르신 (장기 부재 모니터링)',
+            time: '상시 모니터링',
+            location: '망포1동 (박재순 어르신 인근)',
+            tag: '상시 보고',
+            badgeColor: 'bg-slate-100 text-slate-700',
+            defaultChecks: [
+              '장기 부재 사유 및 복지관 담당 사회복지사 공유 현황 점검',
+              '자택 외관 특이사항(우편물 적체 여부 등) 순찰'
+            ]
+          }
+        ]
+      }
+    };
 
-      updateProgress();
+    // -------------------------------------------------------------
+    // 2. 상태 관리 (오늘 날짜, 선택된 요일, 메모 및 체크박스)
+    // -------------------------------------------------------------
+    let currentDate = new Date();
+    // 1(월) ~ 5(금) 기본값 맞추기 (주말이면 월요일 기본)
+    let currentDayOfWeek = currentDate.getDay(); 
+    if (currentDayOfWeek < 1 || currentDayOfWeek > 5) {
+      currentDayOfWeek = 1; // 주말엔 월요일 기본 선택
     }
 
-    // Save states
-    function saveTasks() {
-      const saved = {};
-      const checkboxes = document.querySelectorAll('.task-checkbox');
-      checkboxes.forEach(cb => {
-        const item = cb.closest('.task-item');
-        const id = item.getAttribute('data-id');
-        if (cb.checked) {
-          saved[id] = true;
-        }
-      });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+    let selectedWeekday = currentDayOfWeek;
+    let expandedCardId = null;
+
+    // 인메모리 저장소 (어르신별 다음 방문 메모 및 완료된 체크박스)
+    const memoryNotes = {};
+    const memoryCheckedBoxes = {};
+
+    // -------------------------------------------------------------
+    // 3. 날짜 계산 유틸리티
+    // -------------------------------------------------------------
+    function getWeekDates(baseDate) {
+      const current = new Date(baseDate);
+      const day = current.getDay();
+      // 이번 주 월요일 구하기
+      const diffToMonday = current.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(current.setDate(diffToMonday));
+
+      const week = {};
+      for (let i = 1; i <= 5; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + (i - 1));
+        week[i] = d;
+      }
+      return week;
     }
 
-    // Update progress bar
-    function updateProgress() {
-      const checkboxes = document.querySelectorAll('.task-checkbox');
-      const total = checkboxes.length;
-      let completed = 0;
+    const currentWeekDays = getWeekDates(currentDate);
 
-      checkboxes.forEach(cb => {
-        if (cb.checked) completed++;
-      });
-
-      const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
-      document.getElementById('weekly-progress').style.width = percentage + '%';
-      document.getElementById('progress-percent').innerText = `${percentage}% (${completed}/${total} 완료)`;
+    // 날짜 포맷 (예: 10월 12일 (월))
+    function formatDateFull(d) {
+      const month = d.getMonth() + 1;
+      const date = d.getDate();
+      const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+      return `${month}월 ${date}일 (${dayNames[d.getDay()]})`;
     }
 
-    // Reset all checks
-    function resetChecks() {
-      if (confirm('모든 일정 체크를 초기화하시겠습니까?')) {
-        localStorage.removeItem(STORAGE_KEY);
-        loadTasks();
+    // -------------------------------------------------------------
+    // 4. 화면 초기화 및 탭 렌더링
+    // -------------------------------------------------------------
+    function initApp() {
+      // 상단 헤더 오늘 텍스트
+      const todayStr = formatDateFull(new Date());
+      document.getElementById('header-today-text').textContent = `오늘: ${todayStr}`;
+
+      renderWeekdayTabs();
+      renderScheduleForDay(selectedWeekday);
+    }
+
+    function renderWeekdayTabs() {
+      const container = document.getElementById('weekday-tabs');
+      container.innerHTML = '';
+      const dayLabels = { 1: '월', 2: '화', 3: '수', 4: '목', 5: '금' };
+      const realTodayDay = new Date().getDay();
+
+      for (let i = 1; i <= 5; i++) {
+        const targetDate = currentWeekDays[i];
+        const isSelected = (i === selectedWeekday);
+        const isRealToday = (i === realTodayDay);
+
+        const tabBtn = document.createElement('button');
+        tabBtn.onclick = () => selectWeekday(i);
+        tabBtn.className = `flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all ${
+          isSelected 
+            ? 'bg-amber-500 text-white font-bold shadow-md shadow-amber-300 scale-[1.02]' 
+            : 'bg-slate-50 text-slate-600 hover:bg-amber-100/50'
+        }`;
+
+        tabBtn.innerHTML = `
+          <div class="flex items-center gap-1">
+            <span class="text-xs ${isSelected ? 'text-amber-100' : 'text-slate-400'}">${dayLabels[i]}</span>
+            ${isRealToday ? `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-rose-500'}"></span>` : ''}
+          </div>
+          <span class="text-sm font-extrabold mt-0.5">${targetDate.getDate()}</span>
+        `;
+        container.appendChild(tabBtn);
       }
     }
 
-    // Category Filtering
-    function filterCategory(category) {
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('bg-stone-800', 'text-white', 'shadow-sm');
-        btn.classList.add('bg-stone-100', 'text-stone-600');
-      });
+    function selectWeekday(dayIdx) {
+      selectedWeekday = dayIdx;
+      renderWeekdayTabs();
+      renderScheduleForDay(dayIdx);
+    }
 
-      const activeBtn = document.getElementById(`filter-${category}`);
-      if (activeBtn) {
-        activeBtn.classList.remove('bg-stone-100', 'text-stone-600');
-        activeBtn.classList.add('bg-stone-800', 'text-white', 'shadow-sm');
+    function goToToday() {
+      const today = new Date().getDay();
+      if (today >= 1 && today <= 5) {
+        selectWeekday(today);
+      } else {
+        selectWeekday(1);
       }
+      showToast('오늘 요일 스케줄로 이동했습니다.');
+    }
 
-      const items = document.querySelectorAll('.task-item');
-      items.forEach(item => {
-        const itemCat = item.getAttribute('data-cat');
-        if (category === 'all' || itemCat === category) {
-          item.style.display = '';
+    // -------------------------------------------------------------
+    // 5. 스케줄 리스트 렌더링
+    // -------------------------------------------------------------
+    function renderScheduleForDay(dayIdx) {
+      const schedule = WEEK_SCHEDULE[dayIdx];
+      const targetDate = currentWeekDays[dayIdx];
+
+      // 요일 헤더 카드 업데이트
+      const badgeDay = document.getElementById('badge-day-label');
+      const badgeDate = document.getElementById('badge-date-string');
+      const routeTitle = document.getElementById('day-route-title');
+      const countEl = document.getElementById('day-target-count');
+      const summaryCard = document.getElementById('day-summary-card');
+
+      badgeDay.textContent = schedule.dayName;
+      badgeDate.textContent = `${targetDate.getMonth() + 1}월 ${targetDate.getDate()}일`;
+      routeTitle.innerHTML = schedule.routeTitle;
+      
+      // 방문 인원수 계산 (break 제외)
+      const eldersCount = schedule.items.filter(it => !it.type).length;
+      countEl.textContent = `${eldersCount}명`;
+
+      // 리스트 컨테이너
+      const listContainer = document.getElementById('schedule-list');
+      listContainer.innerHTML = '';
+
+      schedule.items.forEach(item => {
+        if (item.type === 'break') {
+          // 휴식 및 점심 카드
+          const breakEl = document.createElement('div');
+          breakEl.className = 'bg-amber-100/60 border border-dashed border-amber-300 rounded-2xl p-3.5 flex items-center justify-between text-amber-900';
+          breakEl.innerHTML = `
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-amber-200/80 flex items-center justify-center text-amber-700">
+                <i class="fa-solid fa-mug-hot"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-sm text-slate-800">${item.name}</h4>
+                <p class="text-xs text-amber-800 font-medium">${item.location}</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold bg-white/70 px-2.5 py-1 rounded-full text-amber-800 shadow-sm">${item.time}</span>
+          `;
+          listContainer.appendChild(breakEl);
         } else {
-          item.style.display = 'none';
+          // 어르신 방문 카드
+          const isExpanded = (expandedCardId === item.id);
+          const savedNote = memoryNotes[item.elderId] || '';
+          
+          const cardEl = document.createElement('div');
+          cardEl.id = `card-${item.id}`;
+          cardEl.className = `bg-white rounded-2xl border transition-all duration-200 shadow-sm overflow-hidden ${
+            isExpanded ? 'border-amber-400 ring-2 ring-amber-100 shadow-md' : 'border-slate-100 hover:border-amber-200'
+          }`;
+
+          cardEl.innerHTML = `
+            <!-- 카드 헤더 (터치 시 토글) -->
+            <div onclick="toggleCard('${item.id}')" class="p-4 cursor-pointer flex items-start justify-between gap-3 active:bg-amber-50/40">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 flex-wrap mb-1">
+                  <span class="text-xs font-bold px-2 py-0.5 rounded-full ${item.badgeColor || 'bg-amber-100 text-amber-800'}">
+                    ${item.tag}
+                  </span>
+                  <span class="text-xs font-bold text-slate-500">
+                    <i class="fa-regular fa-clock mr-1 text-slate-400"></i>${item.time}
+                  </span>
+                  ${savedNote ? `<span class="text-[11px] font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-note-sticky text-emerald-500"></i>전달사항 있음</span>` : ''}
+                </div>
+                
+                <h3 class="text-lg font-black text-slate-900 flex items-center gap-2">
+                  ${item.name}
+                  <span class="text-xs text-amber-600 font-normal">
+                    <i class="fa-solid fa-hand-pointer mr-0.5"></i>터치하여 케어내용 확인
+                  </span>
+                </h3>
+                
+                <p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                  <i class="fa-solid fa-location-dot text-rose-500"></i>
+                  ${item.location}
+                </p>
+              </div>
+
+              <button class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 mt-1 transition-transform ${isExpanded ? 'rotate-180 bg-amber-100 text-amber-700' : ''}">
+                <i class="fa-solid fa-chevron-down text-xs"></i>
+              </button>
+            </div>
+
+            <!-- 상세 확장 영역 (체크리스트 & 다음 방문 메모) -->
+            <div id="content-${item.id}" class="expand-content ${isExpanded ? 'block' : 'hidden'} border-t border-slate-100 bg-slate-50/60 p-4">
+              
+              <!-- 1. 이전 방문 시 적어둔 중요 전달사항 (있을 때 강조 노출) -->
+              ${savedNote ? `
+                <div class="mb-4 bg-emerald-50 border border-emerald-200 rounded-xl p-3 shadow-xs">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
+                      <i class="fa-solid fa-bell text-emerald-600"></i> 지난번 저장한 [다음에 꼭 해드릴 일]
+                    </span>
+                    <span class="text-[11px] text-emerald-600">체크 확인</span>
+                  </div>
+                  <div class="text-sm font-semibold text-slate-800 bg-white p-2.5 rounded-lg border border-emerald-100">
+                    ${escapeHtml(savedNote)}
+                  </div>
+                </div>
+              ` : ''}
+
+              <!-- 2. 오늘 방문 시 해드릴 기본 케어 목록 (체크박스) -->
+              <div class="mb-4">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-list-check text-amber-500"></i> 오늘 해드릴 케어 목록
+                  </span>
+                  <span class="text-[11px] text-slate-400">완료 시 체크</span>
+                </div>
+
+                <div class="space-y-2">
+                  ${item.defaultChecks.map((task, idx) => {
+                    const checkKey = `${item.elderId}_task_${idx}`;
+                    const isChecked = !!memoryCheckedBoxes[checkKey];
+                    return `
+                      <label class="flex items-start gap-2.5 p-2 rounded-xl bg-white border border-slate-200/80 hover:border-amber-300 transition-colors cursor-pointer select-none">
+                        <input type="checkbox" 
+                               onchange="toggleTaskCheck('${checkKey}')"
+                               ${isChecked ? 'checked' : ''} 
+                               class="w-4 h-4 mt-0.5 rounded border-slate-300 text-amber-500 focus:ring-amber-400">
+                        <span class="text-xs font-medium ${isChecked ? 'line-through text-slate-400' : 'text-slate-700'} leading-relaxed">
+                          ${task}
+                        </span>
+                      </label>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+
+              <!-- 3. 방문 후: 다음에 해드릴 것 적는 칸 & 저장 버튼 -->
+              <div class="bg-white rounded-xl p-3 border border-slate-200/80 shadow-xs">
+                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1.5">
+                  <i class="fa-solid fa-pen-to-square text-rose-500"></i>
+                  방문 후 기록: 다음에 꼭 해드릴 것
+                </label>
+                <p class="text-[11px] text-slate-400 mb-2">
+                  어르신과 대화 중 필요한 요청, 다음 주 챙길 물품 등을 메모해두면 다음에 열었을 때 상단에 표시됩니다.
+                </p>
+                <div class="flex flex-col gap-2">
+                  <textarea id="note-input-${item.elderId}" 
+                            rows="2" 
+                            placeholder="예: 다음 방문 시 관절 파스 챙겨드리기, 둘째 아드님 통화 여부 여쭙기 등"
+                            class="w-full text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-400 text-slate-800 resize-none bg-slate-50/50">${savedNote}</textarea>
+                  <div class="flex justify-end">
+                    <button onclick="saveElderNote('${item.elderId}', '${item.id}')" 
+                            class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all">
+                      <i class="fa-solid fa-floppy-disk text-amber-400"></i>
+                      <span>저장하여 다음에 반영</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          `;
+
+          listContainer.appendChild(cardEl);
         }
       });
     }
 
-    // Initialize on page load
-    window.addEventListener('DOMContentLoaded', () => {
-      loadTasks();
-    });
+    // -------------------------------------------------------------
+    // 6. 인터랙션 및 상태 저장 함수들
+    // -------------------------------------------------------------
+    function toggleCard(cardId) {
+      if (expandedCardId === cardId) {
+        expandedCardId = null;
+      } else {
+        expandedCardId = cardId;
+      }
+      renderScheduleForDay(selectedWeekday);
+    }
+
+    function toggleTaskCheck(checkKey) {
+      memoryCheckedBoxes[checkKey] = !memoryCheckedBoxes[checkKey];
+      // 다시 그려서 취소선 스타일 즉각 반영
+      renderScheduleForDay(selectedWeekday);
+    }
+
+    function saveElderNote(elderId, cardId) {
+      const textarea = document.getElementById(`note-input-${elderId}`);
+      if (!textarea) return;
+
+      const noteText = textarea.value.trim();
+      memoryNotes[elderId] = noteText;
+
+      showToast('메모가 저장되어 다음 방문 시 확인하실 수 있습니다! 📝');
+      renderScheduleForDay(selectedWeekday);
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast-modal');
+      const textEl = document.getElementById('toast-message');
+      textEl.textContent = message;
+      
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      toast.classList.add('opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 2500);
+    }
+
+    function escapeHtml(string) {
+      return String(string).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // 앱 시작
+    window.onload = function() {
+      initApp();
+    };
   </script>
 </body>
 </html>
+```
