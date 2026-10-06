@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>영애의 알찬 한 주 플래너</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Gowun Dodum & Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            dodum: ['"Gowun Dodum"', 'sans-serif'],
+            sans: ['"Noto Sans KR"', 'sans-serif'],
+          },
+          colors: {
+            cream: {
+              50: '#FDFBF7',
+              100: '#F7F3EB',
+              200: '#EFE8DA',
+            },
+            terracotta: {
+              400: '#E27D60',
+              500: '#C86446',
+            },
+            sage: {
+              100: '#E5ECE3',
+              500: '#698F70',
+              600: '#527357',
+            },
+            honey: {
+              100: '#FFF3D6',
+              400: '#F4B251',
+              500: '#E09B36',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #FDFBF7;
+      background-image: radial-gradient(#E8DFC9 0.75px, transparent 0.75px);
+      background-size: 20px 20px;
+    }
+    .completed-item {
+      text-decoration: line-through;
+      opacity: 0.55;
+    }
+    @media print {
+      body { background: white !important; }
+      .no-print { display: none !important; }
+      .print-shadow-none { box-shadow: none !important; }
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D8CEBC;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #B8AC98;
+    }
+  </style>
+</head>
+<body class="font-sans text-stone-800 antialiased min-h-screen p-3 sm:p-6 md:p-8 flex flex-col justify-between">
+
+  <!-- Main Container -->
+  <div class="max-w-6xl mx-auto w-full">
+
+    <!-- Header Section -->
+    <header class="relative bg-white/90 backdrop-blur-sm rounded-3xl border-2 border-amber-200/80 p-6 md:p-8 shadow-sm mb-6 text-center overflow-hidden">
+      <!-- Decorative Flower Ornaments -->
+      <div class="absolute -top-6 -left-6 text-amber-200/40 text-7xl select-none pointer-events-none rotate-12">
+        <i class="fa-solid fa-spa"></i>
+      </div>
+      <div class="absolute -bottom-6 -right-6 text-rose-200/40 text-7xl select-none pointer-events-none -rotate-12">
+        <i class="fa-solid fa-seedling"></i>
+      </div>
+
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100/70 text-amber-800 text-xs font-semibold tracking-wider mb-2">
+        <i class="fa-regular fa-calendar-check"></i> 10/7 (수) ~ 10/11 (일) 위클리 플랜
+      </div>
+      
+      <h1 class="font-dodum text-2xl sm:text-3xl md:text-4xl text-stone-800 font-bold tracking-tight">
+        ✨ 영애의 알찬 한 주 플래너 ✨
+      </h1>
+
+      <p class="font-dodum text-sm sm:text-base text-rose-600/90 mt-2 font-medium flex items-center justify-center gap-2">
+        <span>♥ 일도, 취미도, 쉼도 완벽한 한 주 ♥</span>
+      </p>
+
+      <!-- Overall Progress Bar -->
+      <div class="mt-5 max-w-md mx-auto bg-stone-100 rounded-full h-3.5 p-0.5 overflow-hidden shadow-inner flex items-center border border-stone-200">
+        <div id="weekly-progress" class="bg-gradient-to-r from-amber-400 via-rose-400 to-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+      </div>
+      <div class="mt-2 text-xs font-medium text-stone-500 flex justify-between max-w-md mx-auto px-1">
+        <span>한 주 달성률</span>
+        <span id="progress-percent" class="font-bold text-stone-700">0% (0/15)</span>
+      </div>
+
+      <!-- Action Toolbar -->
+      <div class="no-print mt-5 pt-4 border-t border-stone-100 flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm">
+        <button onclick="filterCategory('all')" id="filter-all" class="filter-btn active px-3 py-1.5 rounded-full font-medium transition bg-stone-800 text-white shadow-sm">
+          전체 보기
+        </button>
+        <button onclick="filterCategory('work')" id="filter-work" class="filter-btn px-3 py-1.5 rounded-full font-medium transition bg-stone-100 text-stone-600 hover:bg-stone-200">
+          🏢 업무·어르신 안부
+        </button>
+        <button onclick="filterCategory('hobby')" id="filter-hobby" class="filter-btn px-3 py-1.5 rounded-full font-medium transition bg-stone-100 text-stone-600 hover:bg-stone-200">
+          🥁 취미·음악
+        </button>
+        <button onclick="filterCategory('rest')" id="filter-rest" class="filter-btn px-3 py-1.5 rounded-full font-medium transition bg-stone-100 text-stone-600 hover:bg-stone-200">
+          🌸 힐링·휴식
+        </button>
+        
+        <div class="h-4 w-[1px] bg-stone-200 hidden sm:block"></div>
+
+        <button onclick="window.print()" class="px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 hover:bg-amber-100 font-medium transition flex items-center gap-1.5 border border-amber-200">
+          <i class="fa-solid fa-print"></i> 인쇄 / PDF 저장
+        </button>
+        <button onclick="resetChecks()" class="px-3 py-1.5 rounded-full bg-stone-50 text-stone-600 hover:bg-stone-100 font-medium transition flex items-center gap-1.5 border border-stone-200">
+          <i class="fa-solid fa-rotate-left"></i> 초기화
+        </button>
+      </div>
+    </header>
+
+    <!-- Planner Grid -->
+    <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <!-- 10/7 (수) -->
+      <section class="day-card bg-white rounded-3xl p-5 border-2 border-stone-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full" data-day="wed">
+        <!-- Day Header -->
+        <div class="flex items-center justify-between pb-3 border-b-2 border-amber-100 mb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-amber-500 text-white font-dodum">10/7 (수)</span>
+              <span class="text-xs text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded-md">현장 방문 & 활력</span>
+            </div>
+            <h2 class="font-dodum text-lg font-bold text-stone-800 mt-1">현장 방문 & 활력 데이</h2>
+          </div>
+          <span class="text-amber-500 text-2xl"><i class="fa-solid fa-person-walking"></i></span>
+        </div>
+
+        <!-- Task List -->
+        <ul class="space-y-3 flex-1 text-sm">
+          <!-- Item 1 -->
+          <li class="task-item p-2.5 rounded-xl border border-stone-100 hover:bg-stone-50/80 transition" data-cat="work" data-id="wed-1">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-amber-600 focus:ring-amber-500 accent-amber-600">
+              <div class="item-content flex-1">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-stone-100 rounded">09:30 ~ 10:30</span>
+                  <span class="text-xs text-stone-400">☕ 티타임</span>
+                </div>
+                <p class="font-medium text-stone-800 mt-1">영통 복지관 (주간조회 & 티타임)</p>
+              </div>
+            </label>
+          </li>
+
+          <!-- Item 2 -->
+          <li class="task-item p-2.5 rounded-xl border border-stone-100 hover:bg-stone-50/80 transition" data-cat="work" data-id="wed-2">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-amber-600 focus:ring-amber-500 accent-amber-600">
+              <div class="item-content flex-1">
+                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-stone-100 rounded">10:30경</span>
+                <p class="font-medium text-stone-800 mt-1 flex items-center gap-1">
+                  📞 <span class="text-amber-800 font-semibold">권희자 어르신</span> 전화 안부
+                </p>
+              </div>
+            </label>
+          </li>
+
+          <!-- Item 3 -->
+          <li class="task-item p-2.5 rounded-xl border border-amber-100 bg-amber-50/30 hover:bg-amber-50/60 transition" data-cat="work" data-id="wed-3">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-amber-600 focus:ring-amber-500 accent-amber-600">
+              <div class="item-content flex-1">
+                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-white rounded border border-amber-200">11:00 ~ 11:40</span>
+                <p class="font-medium text-stone-800 mt-1">
+                  👵 <strong class="text-stone-900">황명숙 어르신</strong> 방문
+                </p>
+                <p class="text-xs text-stone-500 mt-0.5 pl-5">망포동 기선빌라 103호</p>
+              </div>
+            </label>
+          </li>
+
+          <!-- Item 4 -->
+          <li class="task-item p-2.5 rounded-xl border border-amber-100 bg-amber-50/30 hover:bg-amber-50/60 transition" data-cat="work" data-id="wed-4">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-amber-600 focus:ring-amber-500 accent-amber-600">
+              <div class="item-content flex-1">
+                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-white rounded border border-amber-200">11:50 ~ 12:30</span>
+                <p class="font-medium text-stone-800 mt-1">
+                  👵 <strong class="text-stone-900">송정인 어르신</strong> 방문
+                </p>
+                <p class="text-xs text-stone-500 mt-0.5 pl-5">영통 벽적골 주공8단지</p>
+              </div>
+            </label>
+          </li>
+
+          <!-- Item 5 -->
+          <li class="task-item p-2.5 rounded-xl border border-stone-100 hover:bg-stone-50/80 transition" data-cat="rest" data-id="wed-5">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-amber-600 focus:ring-amber-500 accent-amber-600">
+              <div class="item-content flex-1">
+                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-stone-100 rounded">12:30 ~ 13:20</span>
+                <p class="font-medium text-stone-800 mt-1">🍱 점심 식사 & 꿀맛 휴식</p>
+              </div>
+            </label>
+          </li>
+
+          <!-- Item 6 -->
+          <li class="task-item p-2.5 rounded-xl border-2 border-dashed border-amber-300 bg-amber-50/50 hover:bg-amber-50 transition" data-cat="work" data-id="wed-6">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-amber-600 focus:ring-amber-500 accent-amber-600">
+              <div class="item-content flex-1">
+                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-white rounded border border-amber-200">13:30 ~ 14:10</span>
+                <p class="font-medium text-stone-800 mt-1">
+                  👴 <strong class="text-stone-900">손금천 어르신</strong> 방문
+                </p>
+                <div class="text-xs text-stone-600 mt-1 pl-5 space-y-0.5">
+                  <p>📍 신동 빌라 202호</p>
+                  <p class="text-rose-700 font-semibold flex items-center gap-1">
+                    <span>🔔 도어락: 1378</span>
+                    <button type="button" onclick="navigator.clipboard.writeText('1378'); alert('도어락 번호 [1378]가 복사되었습니다!');" class="text-[10px] bg-rose-100 hover:bg-rose-200 text-rose-800 px-1.5 py-0.5 rounded transition">
+                      복사
+                    </button>
+                  </p>
+                </div>
+                <!-- Milestone Badge -->
+                <div class="mt-2 text-xs font-bold text-emerald-800 bg-emerald-100/90 py-1 px-2 rounded-lg text-center shadow-xs">
+                  🎉 ★ 이번 주 방문 업무 완료! ★
+                </div>
+              </div>
+            </label>
+          </li>
+
+          <!-- Item 7 -->
+          <li class="task-item p-2.5 rounded-xl border border-stone-100 hover:bg-stone-50/80 transition" data-cat="hobby" data-id="wed-7">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-amber-600 focus:ring-amber-500 accent-amber-600">
+              <div class="item-content flex-1">
+                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-stone-100 rounded">16:00</span>
+                <p class="font-medium text-stone-800 mt-1">🥁 드럼 연습</p>
+                <p class="text-xs text-rose-500 font-medium pl-5">신나게 스트레스 타파!</p>
+              </div>
+            </label>
+          </li>
+
+          <!-- Item 8 -->
+          <li class="task-item p-2.5 rounded-xl border border-stone-100 hover:bg-stone-50/80 transition" data-cat="rest" data-id="wed-8">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-amber-600 focus:ring-amber-500 accent-amber-600">
+              <div class="item-content flex-1">
+                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-stone-100 rounded">19:00</span>
+                <p class="font-medium text-stone-800 mt-1">🧘‍♀️ 커뮤니티 센터 매트 필라테스</p>
+              </div>
+            </label>
+          </li>
+        </ul>
+      </section>
+
+      <!-- 10/8 (목) -->
+      <section class="day-card bg-white rounded-3xl p-5 border-2 border-stone-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full" data-day="thu">
+        <!-- Day Header -->
+        <div class="flex items-center justify-between pb-3 border-b-2 border-rose-100 mb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-rose-500 text-white font-dodum">10/8 (목)</span>
+              <span class="text-xs text-rose-700 font-semibold bg-rose-50 px-2 py-0.5 rounded-md">문화·특강</span>
+            </div>
+            <h2 class="font-dodum text-lg font-bold text-stone-800 mt-1">여유로운 힐링 데이</h2>
+          </div>
+          <span class="text-rose-400 text-2xl"><i class="fa-solid fa-microphone-lines"></i></span>
+        </div>
+
+        <!-- Task List -->
+        <ul class="space-y-3 flex-1 text-sm">
+          <!-- Item 1 -->
+          <li class="task-item p-2.5 rounded-xl border border-stone-100 hover:bg-stone-50/80 transition" data-cat="rest" data-id="thu-1">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-rose-500 focus:ring-rose-400 accent-rose-500">
+              <div class="item-content flex-1">
+                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-stone-100 rounded">오전</span>
+                <p class="font-medium text-stone-800 mt-1">🏠 집에서 푹 쉬기 & 점심 든든히 먹기</p>
+              </div>
+            </label>
+          </li>
+
+          <!-- Item 2 -->
+          <li class="task-item p-2.5 rounded-xl border-2 border-amber-300 bg-amber-50/40 hover:bg-amber-50/80 transition" data-cat="work" data-id="thu-2">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-rose-500 focus:ring-rose-400 accent-rose-500">
+              <div class="item-content flex-1">
+                <span class="font-bold text-amber-900 text-xs px-1.5 py-0.5 bg-amber-200/80 rounded">12:00 필수 체크!</span>
+                <p class="font-semibold text-stone-900 mt-1">
+                  📱 <span class="text-rose-600 font-bold">[출근 실적 입력]</span> 후 광교 경기홀 출발
+                </p>
+              </div>
+            </label>
+          </li>
+
+          <!-- Item 3 -->
+          <li class="task-item p-2.5 rounded-xl border border-stone-100 hover:bg-stone-50/80 transition" data-cat="work" data-id="thu-3">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-rose-500 focus:ring-rose-400 accent-rose-500">
+              <div class="item-content flex-1">
+                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-stone-100 rounded">12:30 ~ 13:00</span>
+                <p class="font-medium text-stone-800 mt-1">📸 경기홀 도착 등록 & 인증샷 찰칵!</p>
+              </div>
+            </label>
+          </li>
+
+          <!-- Item 4 -->
+          <li class="task-item p-3 rounded-xl border border-rose-200 bg-rose-50/30 hover:bg-rose-50/60 transition" data-cat="rest" data-id="thu-4">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-rose-500 focus:ring-rose-400 accent-rose-500">
+              <div class="item-content flex-1">
+                <span class="font-bold text-rose-800 text-xs px-1.5 py-0.5 bg-rose-100 rounded">13:00 ~ 17:10</span>
+                <p class="font-bold text-stone-900 mt-1 text-base">🎤 힐링 콘서트</p>
+                <div class="text-xs text-stone-600 mt-1 pl-1 space-y-1">
+                  <p class="flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+                    <span>이호선 교수 특강</span>
+                  </p>
+                  <p class="flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+                    <span>가수 이도진 & 밴드 축하 공연 🎶</span>
+                  </p>
+                </div>
+              </div>
+            </label>
+          </li>
+
+          <!-- Item 5 -->
+          <li class="task-item p-2.5 rounded-xl border-2 border-amber-300 bg-amber-50/40 hover:bg-amber-50/80 transition" data-cat="work" data-id="thu-5">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-rose-500 focus:ring-rose-400 accent-rose-500">
+              <div class="item-content flex-1">
+                <span class="font-bold text-amber-900 text-xs px-1.5 py-0.5 bg-amber-200/80 rounded">17:10 ~ 17:30 마감</span>
+                <p class="font-semibold text-stone-900 mt-1">
+                  설문 참여 & 📱 <span class="text-rose-600 font-bold">[17:30 퇴근 실적 입력]</span> 후 기분 좋게 귀가!
+                </p>
+              </div>
+            </label>
+          </li>
+        </ul>
+      </section>
+
+      <!-- 10/9 (금·한글날) -->
+      <section class="day-card bg-white rounded-3xl p-5 border-2 border-stone-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full" data-day="fri">
+        <!-- Day Header -->
+        <div class="flex items-center justify-between pb-3 border-b-2 border-emerald-100 mb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-emerald-600 text-white font-dodum">10/9 (금)</span>
+              <span class="text-xs text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md">한글날 공휴일</span>
+            </div>
+            <h2 class="font-dodum text-lg font-bold text-stone-800 mt-1">꽃 피는 연휴</h2>
+          </div>
+          <span class="text-emerald-500 text-2xl"><i class="fa-solid fa-fan"></i></span>
+        </div>
+
+        <!-- Task List -->
+        <ul class="space-y-3 flex-1 text-sm">
+          <!-- Item 1 -->
+          <li class="task-item p-3 rounded-xl border border-stone-200 bg-stone-50/50 hover:bg-stone-50 transition" data-cat="work" data-id="fri-1">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 accent-emerald-600">
+              <div class="item-content flex-1">
+                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-white rounded border border-stone-200">08:00 ~</span>
+                <p class="font-semibold text-stone-900 mt-1">📞 어르신 전수 안부 전화</p>
+                <p class="text-xs text-emerald-700 font-medium mt-1">💡 "오전에 집중해서 빠르게 완료하기!"</p>
+              </div>
+            </label>
+          </li>
+
+          <!-- Item 2 -->
+          <li class="task-item p-3 rounded-xl border-2 border-rose-200 bg-rose-50/30 hover:bg-rose-50/60 transition" data-cat="hobby" data-id="fri-2">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 accent-emerald-600">
+              <div class="item-content flex-1">
+                <span class="font-bold text-rose-800 text-xs px-1.5 py-0.5 bg-rose-100 rounded">14:00 ~ 쭉~~</span>
+                <p class="font-bold text-stone-900 mt-1 text-base flex items-center gap-1.5">
+                  🌸 자이언트 플라워 수업
+                </p>
+                <p class="text-xs text-stone-600 mt-1">✂️ 손끝으로 만드는 예쁜 공예 힐링 시간</p>
+              </div>
+            </label>
+          </li>
+
+          <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/70 text-xs text-amber-900 mt-4">
+            <p class="font-bold mb-1 flex items-center gap-1"><i class="fa-regular fa-lightbulb"></i> 금요일 응원 한마디</p>
+            오전 안부 전화를 마치면 오후에는 온전히 영애 님만의 꽃 예술과 여유가 펼쳐집니다!
+          </div>
+        </ul>
+      </section>
+
+      <!-- 10/10 (토) -->
+      <section class="day-card bg-white rounded-3xl p-5 border-2 border-stone-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full" data-day="sat">
+        <!-- Day Header -->
+        <div class="flex items-center justify-between pb-3 border-b-2 border-indigo-100 mb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-indigo-500 text-white font-dodum">10/10 (토)</span>
+              <span class="text-xs text-indigo-700 font-semibold bg-indigo-50 px-2 py-0.5 rounded-md">음악 & 여가</span>
+            </div>
+            <h2 class="font-dodum text-lg font-bold text-stone-800 mt-1">음악 & 충전</h2>
+          </div>
+          <span class="text-indigo-500 text-2xl"><i class="fa-solid fa-guitar"></i></span>
+        </div>
+
+        <!-- Task List -->
+        <ul class="space-y-3 flex-1 text-sm">
+          <!-- Item 1 -->
+          <li class="task-item p-3 rounded-xl border border-indigo-100 bg-indigo-50/30 hover:bg-indigo-50/60 transition" data-cat="hobby" data-id="sat-1">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 accent-indigo-600">
+              <div class="item-content flex-1">
+                <span class="font-bold text-indigo-800 text-xs px-1.5 py-0.5 bg-indigo-100 rounded">낮 시간</span>
+                <p class="font-bold text-stone-900 mt-1 flex items-center gap-1.5">
+                  🎸 밴드 합주 연습
+                </p>
+                <p class="text-xs text-stone-500 mt-0.5">합주로 음악 에너지 가득 채우기!</p>
+              </div>
+            </label>
+          </li>
+
+          <!-- Item 2 -->
+          <li class="task-item p-3 rounded-xl border border-stone-100 hover:bg-stone-50/80 transition" data-cat="rest" data-id="sat-2">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 accent-indigo-600">
+              <div class="item-content flex-1">
+                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-stone-100 rounded">연습 후</span>
+                <p class="font-medium text-stone-800 mt-1 flex items-center gap-1.5">
+                  🛋️ 푹 쉬면서 체력 완충
+                </p>
+                <p class="text-xs text-stone-400 mt-0.5">일요일 나들이를 위한 꿀잠과 휴식</p>
+              </div>
+            </label>
+          </li>
+        </ul>
+      </section>
+
+      <!-- 10/11 (일) -->
+      <section class="day-card bg-white rounded-3xl p-5 border-2 border-stone-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full md:col-span-2 lg:col-span-2" data-day="sun">
+        <!-- Day Header -->
+        <div class="flex items-center justify-between pb-3 border-b-2 border-amber-200 mb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-stone-800 text-white font-dodum">10/11 (일)</span>
+              <span class="text-xs text-stone-700 font-semibold bg-stone-100 px-2 py-0.5 rounded-md">나들이 & 문화</span>
+            </div>
+            <h2 class="font-dodum text-lg font-bold text-stone-800 mt-1">마음 충전 & 나들이</h2>
+          </div>
+          <span class="text-amber-600 text-2xl"><i class="fa-solid fa-champagne-glasses"></i></span>
+        </div>
+
+        <!-- Task List (2-column on larger screens) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-1 text-sm">
+          <!-- Item 1 -->
+          <div class="task-item p-3 rounded-2xl border border-stone-200 bg-stone-50/50 hover:bg-stone-50 transition" data-cat="rest" data-id="sun-1">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-stone-800 focus:ring-stone-600 accent-stone-800">
+              <div class="item-content flex-1">
+                <span class="font-bold text-stone-700 text-xs px-1.5 py-0.5 bg-white rounded border border-stone-200">오전 / 낮</span>
+                <p class="font-bold text-stone-900 mt-1">⛪ 교회 예배</p>
+                <p class="text-xs text-stone-500 mt-1">평온하고 은혜로운 마음 다지기</p>
+              </div>
+            </label>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="task-item p-3 rounded-2xl border border-rose-100 bg-rose-50/30 hover:bg-rose-50/70 transition" data-cat="rest" data-id="sun-2">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-stone-800 focus:ring-stone-600 accent-stone-800">
+              <div class="item-content flex-1">
+                <span class="font-bold text-rose-700 text-xs px-1.5 py-0.5 bg-rose-100 rounded">저녁</span>
+                <p class="font-bold text-stone-900 mt-1">🍽️ 민경과 맛있는 저녁</p>
+                <p class="text-xs text-stone-600 mt-1">행복한 수다 & 맛있는 음식 충전</p>
+              </div>
+            </label>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="task-item p-3 rounded-2xl border-2 border-amber-300 bg-amber-50/60 hover:bg-amber-50 transition" data-cat="rest" data-id="sun-3">
+            <label class="flex items-start gap-2.5 cursor-pointer">
+              <input type="checkbox" class="task-checkbox mt-1 w-4 h-4 rounded text-stone-800 focus:ring-stone-600 accent-stone-800">
+              <div class="item-content flex-1">
+                <span class="font-bold text-amber-800 text-xs px-1.5 py-0.5 bg-amber-100 rounded">밤</span>
+                <p class="font-bold text-stone-900 mt-1">🏮 연무대(동장대) 공연 관람</p>
+                <div class="mt-2 text-xs font-bold text-rose-600 bg-white/80 py-1 px-2 rounded border border-rose-200 inline-block">
+                  🧥 겉옷 필수 챙기기! (밤바람 쌀쌀)
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Quick Memo / Note Section -->
+    <section class="mt-6 bg-white/80 rounded-3xl p-5 border border-stone-200 text-xs text-stone-600 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="p-2 rounded-xl bg-amber-100 text-amber-800 font-bold text-sm">📌 체크 포인트</span>
+        <div class="space-y-0.5">
+          <p>• <strong>10/7 (수):</strong> 손금천 어르신 댁(신동 빌라 202호) 도어락 <strong>1378</strong></p>
+          <p>• <strong>10/8 (목):</strong> 12:00 출근 실적 & 17:30 퇴근 실적 입력 깜빡하지 않기!</p>
+          <p>• <strong>10/11 (일):</strong> 동장대 야외 공연 관람 시 밤공기가 쌀쌀하니 도톰한 겉옷 챙기기</p>
+        </div>
+      </div>
+      <div class="text-right text-stone-400">
+        일정을 클릭하면 완료 표시 및 브라우저에 자동 저장됩니다.
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="mt-8 mb-4 text-center text-xs text-stone-400">
+      <p class="font-dodum text-sm text-stone-600 mb-1">언제나 따뜻하고 활력 넘치는 영애 님의 일주일을 응원합니다 💐</p>
+      <p>© 2026 Young-ae's Weekly Planner</p>
+    </footer>
+
+  </div>
+
+  <!-- Interactive JavaScript -->
+  <script>
+    const STORAGE_KEY = 'youngae_planner_checked_state';
+
+    // Load saved states
+    function loadTasks() {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      const checkboxes = document.querySelectorAll('.task-checkbox');
+
+      checkboxes.forEach(cb => {
+        const item = cb.closest('.task-item');
+        const id = item.getAttribute('data-id');
+        if (saved[id]) {
+          cb.checked = true;
+          item.classList.add('completed-item');
+        } else {
+          cb.checked = false;
+          item.classList.remove('completed-item');
+        }
+
+        cb.addEventListener('change', () => {
+          if (cb.checked) {
+            item.classList.add('completed-item');
+          } else {
+            item.classList.remove('completed-item');
+          }
+          saveTasks();
+          updateProgress();
+        });
+      });
+
+      updateProgress();
+    }
+
+    // Save states
+    function saveTasks() {
+      const saved = {};
+      const checkboxes = document.querySelectorAll('.task-checkbox');
+      checkboxes.forEach(cb => {
+        const item = cb.closest('.task-item');
+        const id = item.getAttribute('data-id');
+        if (cb.checked) {
+          saved[id] = true;
+        }
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+    }
+
+    // Update progress bar
+    function updateProgress() {
+      const checkboxes = document.querySelectorAll('.task-checkbox');
+      const total = checkboxes.length;
+      let completed = 0;
+
+      checkboxes.forEach(cb => {
+        if (cb.checked) completed++;
+      });
+
+      const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
+      document.getElementById('weekly-progress').style.width = percentage + '%';
+      document.getElementById('progress-percent').innerText = `${percentage}% (${completed}/${total} 완료)`;
+    }
+
+    // Reset all checks
+    function resetChecks() {
+      if (confirm('모든 일정 체크를 초기화하시겠습니까?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        loadTasks();
+      }
+    }
+
+    // Category Filtering
+    function filterCategory(category) {
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('bg-stone-800', 'text-white', 'shadow-sm');
+        btn.classList.add('bg-stone-100', 'text-stone-600');
+      });
+
+      const activeBtn = document.getElementById(`filter-${category}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('bg-stone-100', 'text-stone-600');
+        activeBtn.classList.add('bg-stone-800', 'text-white', 'shadow-sm');
+      }
+
+      const items = document.querySelectorAll('.task-item');
+      items.forEach(item => {
+        const itemCat = item.getAttribute('data-cat');
+        if (category === 'all' || itemCat === category) {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadTasks();
+    });
+  </script>
+</body>
+</html>
