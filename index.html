@@ -2,121 +2,156 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>주간 일정 매니저</title>
+  <title>스마트 주간 일정표</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&display=swap');
-    * { font-family: 'Noto Sans KR', sans-serif; box-sizing: border-box; }
-    body { background-color: #0b1120; color: #e2e8f0; touch-action: manipulation; }
-    .neon-text-green { color: #34d399; }
-    .badge-purple { background-color: #6b21a8; color: #f3e8ff; }
-    .badge-amber { background-color: #b45309; color: #fef3c7; }
-    .badge-rose { background-color: #be123c; color: #ffe4e6; }
-    .badge-blue { background-color: #1d4ed8; color: #dbeafe; }
+    @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;900&display=swap');
+    * { font-family: 'Pretendard', -apple-system, sans-serif; box-sizing: border-box; }
+    body { background-color: #080d1a; color: #e2e8f0; touch-action: manipulation; }
+    .glass-card { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .neon-green { color: #34d399; text-shadow: 0 0 10px rgba(52, 211, 153, 0.3); }
+    .neon-badge { box-shadow: 0 0 12px rgba(99, 102, 241, 0.25); }
   </style>
 </head>
-<body class="p-2 sm:p-4 pb-28 max-w-xl mx-auto">
-  <!-- 이번 주 TO-DO / 전달사항 입력 카드 -->
-  <section class="bg-[#0f172a] border border-[#1e293b] rounded-2xl p-3 mb-3 shadow">
+<body class="p-3 sm:p-5 pb-28 max-w-xl mx-auto">
+
+  <!-- 상단 상태 바 -->
+  <header class="glass-card rounded-2xl px-4 py-3 mb-3.5 flex items-center justify-between shadow-lg">
+    <div class="flex items-center gap-2.5">
+      <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]"></div>
+      <span class="text-xs font-semibold text-slate-300">근무 <b class="text-white font-extrabold ml-1">09:30 ~ 15:00</b></span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="copyWeeklySchedule()" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3 py-1.5 rounded-xl active:scale-95 transition flex items-center gap-1.5 shadow-md">
+        <i class="fa-solid fa-copy text-[11px]"></i>
+        <span>일정 복사</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 이번 주 TO-DO (할 일 & 물품 전달 메모) -->
+  <section class="glass-card rounded-2xl p-3.5 mb-3.5 shadow-md">
     <div class="flex items-center justify-between mb-2">
-      <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-        <i class="fa-solid fa-clipboard-list"></i> 이번 주 꼭 해야 할 일 (물품전달·생활교육·공지)
+      <span class="text-xs font-extrabold text-amber-400 flex items-center gap-1.5 tracking-tight">
+        <i class="fa-solid fa-gift text-amber-400"></i> 이번 주 전달사항 & 과제
       </span>
-      <button onclick="addWeeklyTodo()" class="text-[11px] bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 px-2 py-0.5 rounded border border-amber-500/30">
+      <button onclick="addWeeklyTodo()" class="text-[11px] font-bold bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 px-2 py-0.5 rounded-lg border border-amber-500/30 active:scale-95 transition">
         + 추가
       </button>
     </div>
-    <div id="weeklyTodoList" class="space-y-1.5 text-xs">
-      <!-- 동적 생성 -->
-    </div>
+    <div id="weeklyTodoList" class="space-y-1.5 text-xs"></div>
   </section>
 
   <!-- 요일 탭 선택기 -->
-  <div class="flex gap-1.5 overflow-x-auto pb-1 mb-2.5 scrollbar-none" id="dayTabsContainer">
-    <!-- JS 생성 -->
-  </div>
+  <div class="flex gap-1.5 overflow-x-auto pb-1 mb-3 scrollbar-none" id="dayTabsContainer"></div>
 
-  <!-- 해당 요일의 휴가 / 특이일정 상태 바 -->
+  <!-- 휴가/알림 배너 -->
   <div id="dayNoticeBanner" class="hidden mb-3 p-2.5 rounded-xl text-xs font-bold flex items-center justify-between border"></div>
 
-  <!-- 일정 리스트 테이블 컨테이너 -->
-  <main class="bg-[#0f172a] border border-[#1e293b] rounded-2xl overflow-hidden shadow-xl mb-4">
-    <div class="p-3 bg-[#131d31] border-b border-[#1e293b] flex items-center justify-between">
+  <!-- 일정 리스트 메인 카드 -->
+  <main class="glass-card rounded-3xl overflow-hidden shadow-2xl border border-slate-800/80">
+    <div class="p-3.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <h2 id="currentDayTitle" class="text-sm font-black text-white">월요일 일정</h2>
-        <span id="currentDayCount" class="text-[11px] text-slate-400">총 0건</span>
+        <span id="currentDayCount" class="text-[11px] text-slate-400 font-medium">총 0건</span>
       </div>
       <div class="flex gap-1.5">
-        <button onclick="openAddEventModal()" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-2.5 py-1 rounded-lg active:scale-95 transition">
-          + 일정추가
+        <button onclick="openAddEventModal()" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-xl active:scale-95 transition flex items-center gap-1">
+          <i class="fa-solid fa-plus text-[10px]"></i> 추가
         </button>
-        <button onclick="openDayConfigModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-2.5 py-1 rounded-lg border border-slate-700 active:scale-95 transition">
+        <button onclick="openDayConfigModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-2.5 py-1.5 rounded-xl border border-slate-700 active:scale-95 transition">
           ⚙️ 회의/휴가
         </button>
       </div>
     </div>
 
-    <!-- 맞춤광장 표 형태 리스트 -->
-    <div id="scheduleTableBody" class="divide-y divide-[#1e293b]">
-      <!-- 동적 생성 -->
-    </div>
+    <!-- 일정 리스트 -->
+    <div id="scheduleTableBody" class="divide-y divide-slate-800/60"></div>
   </main>
 
-  <!-- 일정 추가/수정 모달 -->
+  <!-- 빠른 시간 변경 모달 (1초 퀵 수정) -->
+  <div id="timeModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="glass-card bg-[#0f172a] border border-slate-700 rounded-3xl p-5 max-w-xs w-full shadow-2xl">
+      <h3 class="text-sm font-black text-white mb-1 flex items-center gap-2">
+        <i class="fa-regular fa-clock text-emerald-400"></i> 시간 간단 변경
+      </h3>
+      <p id="timeModalTargetName" class="text-xs text-slate-400 mb-3 font-semibold"></p>
+      
+      <div class="grid grid-cols-2 gap-2 mb-4 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">시작</label>
+          <input type="time" id="quickStart" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-bold">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">종료</label>
+          <input type="time" id="quickEnd" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-bold">
+        </div>
+      </div>
+
+      <!-- 자주 쓰는 퀵 프리셋 버튼 -->
+      <div class="grid grid-cols-3 gap-1 mb-4 text-[11px]">
+        <button onclick="applyTimePreset('13:00','14:00')" class="bg-slate-800 text-slate-300 p-1.5 rounded-lg border border-slate-700">13:00(60분)</button>
+        <button onclick="applyTimePreset('14:20','14:50')" class="bg-slate-800 text-slate-300 p-1.5 rounded-lg border border-slate-700">14:20~14:50</button>
+        <button onclick="applyTimePreset('14:50','15:00')" class="bg-slate-800 text-slate-300 p-1.5 rounded-lg border border-slate-700">14:50~15:00</button>
+      </div>
+
+      <div class="flex gap-2">
+        <button onclick="closeTimeModal()" class="flex-1 bg-slate-800 text-slate-300 font-bold py-2 rounded-xl border border-slate-700 text-xs">취소</button>
+        <button onclick="saveQuickTime()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">변경 적용</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 일정 추가 모달 -->
   <div id="eventModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-[#0f172a] border border-[#334155] rounded-3xl p-5 max-w-sm w-full shadow-2xl">
-      <h3 class="text-base font-black text-white mb-3" id="modalTitle">일정 추가</h3>
+    <div class="glass-card bg-[#0f172a] border border-slate-700 rounded-3xl p-5 max-w-sm w-full shadow-2xl">
+      <h3 class="text-sm font-black text-white mb-3" id="modalTitle">일정 추가</h3>
       
       <div class="space-y-3 text-xs">
         <div>
-          <label class="block text-slate-400 mb-1">일정 구분</label>
-          <select id="inputEventType" onchange="toggleSeniorSelect(this.value)" class="w-full bg-[#1e293b] border border-slate-700 rounded-xl p-2.5 text-white">
-            <option value="어르신">어르신 1:1</option>
-            <option value="물품전달">물품 전달 (달달떡집/후원품 등)</option>
-            <option value="생활교육">어르신 생활교육 / 프로그램</option>
-            <option value="회의">회의 및 조회 (복지관)</option>
-            <option value="기타">기타 업무</option>
-          </select>
-        </div>
-
-        <div id="seniorSelectBox">
-          <label class="block text-slate-400 mb-1">어르신 선택</label>
-          <select id="inputSenior" onchange="autoFillSenior(this.value)" class="w-full bg-[#1e293b] border border-slate-700 rounded-xl p-2.5 text-white">
+          <label class="block text-slate-400 mb-1">성함 선택 (선택 시 주소·시간 자동입력)</label>
+          <select id="inputSenior" onchange="autoFillSenior(this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-bold">
             <option value="">직접 입력</option>
-            <option value="손금천 (신동 202호)">손금천 [중점] (13:00~14:00)</option>
-            <option value="권희자 (신동래미안 201동)">권희자 (목 12:10~12:40)</option>
-            <option value="박향례 (세흥아파트 209호)">박향례 (화 14:10~14:40)</option>
-            <option value="신길지 (세흥아파트 302호)">신길지 (화 14:30~15:00)</option>
-            <option value="김입분 (벽적골 8단지)">김입분 (수 14:10~14:40)</option>
-            <option value="송정인 (벽적골 8단지)">송정인 (수 14:30~15:00)</option>
-            <option value="박재순 (영통로90번길)">박재순 (30분)</option>
-            <option value="황명숙 (기선빌라 103호)">황명숙 (30분)</option>
-            <option value="김금옥 (세흥빌라 나-202호)">김금옥 (30분)</option>
-            <option value="안정훈 (세흥빌라 나-203호)">안정훈 (30분)</option>
-            <option value="김말순 (동수원 자이2차)">김말순 (30분)</option>
+            <option value="손금천|신동 202호|13:00|14:00|중점">손금천 [신동 202호] (13:00~14:00)</option>
+            <option value="권희자|신동래미안 201동|12:10|12:40|일반">권희자 [신동래미안 201동] (12:10~12:40)</option>
+            <option value="박향례|세흥 209호|14:20|14:50|일반">박향례 [세흥아파트 209호] (14:20~14:50)</option>
+            <option value="신길지|세흥 302호|14:50|15:00|일반">신길지 [세흥아파트 302호] (14:50~15:00)</option>
+            <option value="김입분|벽적골 8단지|14:20|14:50|일반">김입분 [벽적골 8단지] (14:20~14:50)</option>
+            <option value="송정인|벽적골 8단지|14:50|15:00|일반">송정인 [벽적골 8단지] (14:50~15:00)</option>
+            <option value="박재순|영통로90번길 4-12|14:15|14:45|일반">박재순 [영통로90번길 4-12] (30분)</option>
+            <option value="황명숙|기선빌라 103호|14:45|15:00|일반">황명숙 [기선빌라 103호] (15분)</option>
+            <option value="김금옥|세흥빌라 나-202호|14:20|14:50|일반">김금옥 [세흥빌라 나-202호] (30분)</option>
+            <option value="안정훈|세흥빌라 나-203호|14:50|15:00|일반">안정훈 [세흥빌라 나-203호] (10분)</option>
+            <option value="김말순|동수원자이 201동|14:20|14:50|일반">김말순 [동수원 자이2차 201동] (30분)</option>
           </select>
-        </div>
-
-        <div>
-          <label class="block text-slate-400 mb-1">일정명 / 성함</label>
-          <input type="text" id="inputTitle" placeholder="예: 손금천 or 후원품 전달" class="w-full bg-[#1e293b] border border-slate-700 rounded-xl p-2.5 text-white">
         </div>
 
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block text-slate-400 mb-1">시작 시간</label>
-            <input type="time" id="inputStartTime" value="13:00" class="w-full bg-[#1e293b] border border-slate-700 rounded-xl p-2.5 text-white">
+            <label class="block text-slate-400 mb-1">성함 / 일정명</label>
+            <input type="text" id="inputName" placeholder="예: 손금천" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white">
           </div>
           <div>
-            <label class="block text-slate-400 mb-1">종료 시간</label>
-            <input type="time" id="inputEndTime" value="14:00" class="w-full bg-[#1e293b] border border-slate-700 rounded-xl p-2.5 text-white">
+            <label class="block text-slate-400 mb-1">간단 주소 (동·호수)</label>
+            <input type="text" id="inputLoc" placeholder="예: 신동 202호" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-slate-400 mb-1">시작</label>
+            <input type="time" id="inputStartTime" value="13:00" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1">종료</label>
+            <input type="time" id="inputEndTime" value="14:00" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white">
           </div>
         </div>
 
         <div>
-          <label class="block text-slate-400 mb-1">서비스 내용 / 메모</label>
-          <input type="text" id="inputService" placeholder="예: 안부+말벗 / 영양떡 전달" class="w-full bg-[#1e293b] border border-slate-700 rounded-xl p-2.5 text-white">
+          <label class="block text-slate-400 mb-1">서비스 내용 / 전달사항</label>
+          <input type="text" id="inputService" placeholder="예: 안부+말벗 / 영양떡 전달" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white">
         </div>
       </div>
 
@@ -129,9 +164,9 @@
 
   <!-- 회의/휴가 설정 모달 -->
   <div id="configModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-[#0f172a] border border-[#334155] rounded-3xl p-5 max-w-sm w-full shadow-2xl">
-      <h3 class="text-base font-black text-white mb-2" id="configDayTitle">요일 설정</h3>
-      <p class="text-xs text-slate-400 mb-4">근무 형태와 고정 회의를 설정합니다.</p>
+    <div class="glass-card bg-[#0f172a] border border-slate-700 rounded-3xl p-5 max-w-sm w-full shadow-2xl">
+      <h3 class="text-sm font-black text-white mb-2" id="configDayTitle">요일 회의 / 휴가 설정</h3>
+      <p class="text-xs text-slate-400 mb-3">근무 형태와 고정 회의를 간편하게 설정합니다.</p>
 
       <div class="space-y-3 text-xs">
         <div>
@@ -145,22 +180,22 @@
         </div>
 
         <div class="pt-2 border-t border-slate-800">
-          <label class="block text-slate-300 font-bold mb-1.5">고정 회의 빠른 추가</label>
+          <label class="block text-slate-300 font-bold mb-1.5">복지관 고정 회의 추가</label>
           <div class="flex flex-col gap-1.5">
-            <button onclick="quickAddMeeting('매주 수요일 조회', '09:30', '10:30')" class="w-full text-left bg-[#1e293b] hover:bg-slate-700 p-2 rounded-xl text-slate-300 flex items-center justify-between">
-              <span>📢 매주 수요일 조회 (09:30~10:30)</span>
-              <span class="text-[10px] text-emerald-400">+추가</span>
+            <button onclick="quickAddMeeting('수요일 조회', '09:30', '10:30')" class="w-full text-left bg-slate-800 hover:bg-slate-700 p-2.5 rounded-xl text-slate-300 flex items-center justify-between border border-slate-700/60">
+              <span>📢 수요일 주간 조회 (09:30~10:30)</span>
+              <span class="text-[10px] text-emerald-400 font-bold">+추가</span>
             </button>
-            <button onclick="quickAddMeeting('첫째 수요일 월례회의', '09:30', '11:00')" class="w-full text-left bg-[#1e293b] hover:bg-slate-700 p-2 rounded-xl text-slate-300 flex items-center justify-between">
+            <button onclick="quickAddMeeting('월례회의', '09:30', '11:00')" class="w-full text-left bg-slate-800 hover:bg-slate-700 p-2.5 rounded-xl text-slate-300 flex items-center justify-between border border-slate-700/60">
               <span>🏛️ 첫째 주 월례회의 (09:30~11:00)</span>
-              <span class="text-[10px] text-emerald-400">+추가</span>
+              <span class="text-[10px] text-emerald-400 font-bold">+추가</span>
             </button>
           </div>
         </div>
       </div>
 
-      <div class="flex gap-2 mt-5">
-        <button onclick="closeConfigModal()" class="w-full bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl border border-slate-700">닫기</button>
+      <div class="flex gap-2 mt-4">
+        <button onclick="closeConfigModal()" class="w-full bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl border border-slate-700 text-xs">닫기</button>
       </div>
     </div>
   </div>
@@ -168,76 +203,77 @@
   <script>
     const DAYS = ['월', '화', '수', '목', '금'];
     let currentDay = '월';
+    let editingEventId = null;
 
-    // 09:30 ~ 15:00 근무시간 철저 준수 기본 데이터
-    let scheduleData = JSON.parse(localStorage.getItem('smartCareSchedule_v3')) || {
+    // 초기 데이터 (주소 태그와 간결한 성함 탑재)
+    let scheduleData = JSON.parse(localStorage.getItem('smartCareSchedule_v4')) || {
       todos: [
         { id: 1, text: "달달떡집 영양떡 6분 전달 (김금옥, 손금천, 안정훈 등)", done: false },
         { id: 2, text: "환절기 건강수칙 생활교육 진행", done: false },
-        { id: 3, text: "수요일 09:30 복지관 조회 참석", done: true }
+        { id: 3, text: "수요일 09:30 센터 조회 참석", done: true }
       ],
       days: {
         '월': {
           status: '정상근무',
           events: [
-            { id: 101, type: '어르신', title: '손금천', start: '13:00', end: '14:00', service: '신체·가사·인지지원 (중점 60분)', loc: '신동 202호' },
-            { id: 102, type: '어르신', title: '박재순', start: '14:15', end: '14:45', service: '안부+말벗 (30분)', loc: '영통로90번길' },
-            { id: 103, type: '어르신', title: '황명숙', start: '14:45', end: '15:00', service: '안부+말벗 (단축/금욜휴가대체)', loc: '기선빌라 103호' }
+            { id: 101, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지지원 (중점 60분)' },
+            { id: 102, name: '박재순', loc: '영통로90번길 4-12', start: '14:15', end: '14:45', service: '안부+말벗 (30분)' },
+            { id: 103, name: '황명숙', loc: '기선빌라 103호', start: '14:45', end: '15:00', service: '안부확인 (금욜휴가대체)' }
           ]
         },
         '화': {
           status: '정상근무',
           events: [
-            { id: 201, type: '어르신', title: '손금천', start: '13:00', end: '14:00', service: '신체·가사·인지지원 (중점 60분)', loc: '신동 202호' },
-            { id: 202, type: '어르신', title: '박향례', start: '14:20', end: '14:50', service: '안부+말벗 (30분)', loc: '세흥아파트 209호' },
-            { id: 203, type: '어르신', title: '신길지', start: '14:50', end: '15:00', service: '안부확인+환경점검 (세흥 302호)', loc: '세흥아파트 302호' }
+            { id: 201, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지지원 (중점 60분)' },
+            { id: 202, name: '박향례', loc: '세흥아파트 209호', start: '14:20', end: '14:50', service: '안부+말벗 (30분)' },
+            { id: 203, name: '신길지', loc: '세흥아파트 302호', start: '14:50', end: '15:00', service: '안부확인+환경점검' }
           ]
         },
         '수': {
           status: '정상근무',
           events: [
-            { id: 300, type: '회의', title: '복지관 주간 조회', start: '09:30', end: '10:30', service: '영통종합사회복지관', loc: '복지관 회의실' },
-            { id: 301, type: '어르신', title: '손금천', start: '13:00', end: '14:00', service: '신체·가사·인지지원 (중점 60분)', loc: '신동 202호' },
-            { id: 302, type: '어르신', title: '김입분', start: '14:20', end: '14:50', service: '안부+말벗 (30분)', loc: '벽적골 8단지' },
-            { id: 303, type: '어르신', title: '송정인', start: '14:50', end: '15:00', service: '안부확인 (벽적골 같은단지)', loc: '벽적골 8단지' }
+            { id: 300, name: '수요일 조회', loc: '복지관 회의실', start: '09:30', end: '10:30', service: '영통종합사회복지관' },
+            { id: 301, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지지원 (중점 60분)' },
+            { id: 302, name: '김입분', loc: '벽적골 8단지', start: '14:20', end: '14:50', service: '안부+말벗 (30분)' },
+            { id: 303, name: '송정인', loc: '벽적골 8단지', start: '14:50', end: '15:00', service: '안부확인 (같은단지)' }
           ]
         },
         '목': {
           status: '정상근무',
           events: [
-            { id: 400, type: '어르신', title: '권희자', start: '12:10', end: '12:40', service: '안부+말벗 (30분)', loc: '신동래미안 201동' },
-            { id: 401, type: '어르신', title: '손금천', start: '13:00', end: '14:00', service: '신체·가사·인지지원 (중점 60분)', loc: '신동 202호' },
-            { id: 402, type: '어르신', title: '김금옥', start: '14:20', end: '14:50', service: '안부+물품전달 (30분)', loc: '세흥빌라 나-202호' },
-            { id: 403, type: '어르신', title: '안정훈', start: '14:50', end: '15:00', service: '안부+물품전달 (세흥 바로옆집)', loc: '세흥빌라 나-203호' }
+            { id: 400, name: '권희자', loc: '신동래미안 201동', start: '12:10', end: '12:40', service: '안부+말벗 (30분)' },
+            { id: 401, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지지원 (중점 60분)' },
+            { id: 402, name: '김금옥', loc: '세흥빌라 나-202호', start: '14:20', end: '14:50', service: '안부+물품전달 (30분)' },
+            { id: 403, name: '안정훈', loc: '세흥빌라 나-203호', start: '14:50', end: '15:00', service: '안부+물품전달 (바로옆집)' }
           ]
         },
         '금': {
           status: '종일휴가',
           events: [
-            { id: 501, type: '어르신', title: '손금천', start: '13:00', end: '14:00', service: '신체·가사·인지지원 (중점 60분)', loc: '신동 202호' }
+            { id: 501, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지지원 (중점 60분)' }
           ]
         }
       }
     };
 
     function saveData() {
-      localStorage.setItem('smartCareSchedule_v3', JSON.stringify(scheduleData));
+      localStorage.setItem('smartCareSchedule_v4', JSON.stringify(scheduleData));
       renderDayTabs();
       renderCurrentDay();
       renderTodos();
     }
 
-    // --- 할 일(TO-DO) 렌더링 ---
+    // --- TO-DO 렌더링 ---
     function renderTodos() {
       const container = document.getElementById('weeklyTodoList');
       container.innerHTML = '';
       scheduleData.todos.forEach((todo, idx) => {
         const item = document.createElement('div');
-        item.className = 'flex items-center justify-between bg-[#1e293b]/50 px-2.5 py-1.5 rounded-lg border border-slate-800';
+        item.className = 'flex items-center justify-between bg-slate-900/60 px-3 py-1.5 rounded-xl border border-slate-800/80';
         item.innerHTML = `
           <div class="flex items-center gap-2 flex-1 cursor-pointer" onclick="toggleTodo(${idx})">
             <i class="fa-regular ${todo.done ? 'fa-square-check text-emerald-400' : 'fa-square text-slate-500'} text-sm"></i>
-            <span class="${todo.done ? 'line-through text-slate-500' : 'text-slate-200'}">${todo.text}</span>
+            <span class="${todo.done ? 'line-through text-slate-500' : 'text-slate-200 font-medium'}">${todo.text}</span>
           </div>
           <button onclick="deleteTodo(${idx})" class="text-slate-500 hover:text-rose-400 px-1"><i class="fa-solid fa-xmark text-[11px]"></i></button>
         `;
@@ -256,14 +292,14 @@
     }
 
     function addWeeklyTodo() {
-      const text = prompt('이번 주 할 일(물품전달, 교육, 센터과제 등)을 입력하세요:');
+      const text = prompt('이번 주 꼭 챙겨야 할 일/물품전달/공지를 적어주세요:');
       if (text && text.trim()) {
         scheduleData.todos.push({ id: Date.now(), text: text.trim(), done: false });
         saveData();
       }
     }
 
-    // --- 요일 탭 렌더링 ---
+    // --- 요일 탭 ---
     function renderDayTabs() {
       const container = document.getElementById('dayTabsContainer');
       container.innerHTML = '';
@@ -278,9 +314,9 @@
         else if (info.status === '오후휴가') statusBadge = '🟡오후반';
         else statusBadge = `${info.events.length}건`;
 
-        btn.className = `flex-1 py-2 px-1.5 rounded-xl text-center transition-all ${isCurrent ? 'bg-indigo-600 text-white font-black shadow-md border border-indigo-400/50' : 'bg-[#1e293b] text-slate-400 border border-slate-800'}`;
+        btn.className = `flex-1 py-2 px-1 rounded-xl text-center transition-all ${isCurrent ? 'bg-indigo-600 text-white font-extrabold shadow-lg neon-badge border border-indigo-400/50' : 'bg-slate-900/70 text-slate-400 border border-slate-800/70'}`;
         btn.innerHTML = `
-          <div class="text-xs">${day}요일</div>
+          <div class="text-xs tracking-tight">${day}요일</div>
           <div class="text-[10px] mt-0.5 font-bold ${isCurrent ? 'text-indigo-200' : 'text-slate-500'}">${statusBadge}</div>
         `;
         btn.onclick = () => {
@@ -292,7 +328,7 @@
       });
     }
 
-    // --- 현재 선택 요일 화면 렌더링 ---
+    // --- 현재 요일 리스트 렌더링 ---
     function renderCurrentDay() {
       document.getElementById('currentDayTitle').textContent = `${currentDay}요일 일정`;
       const dayData = scheduleData.days[currentDay];
@@ -303,71 +339,111 @@
       if (dayData.status !== '정상근무') {
         banner.className = `mb-3 p-2.5 rounded-xl text-xs font-bold flex items-center justify-between border ${dayData.status === '종일휴가' ? 'bg-rose-950/40 border-rose-800 text-rose-300' : 'bg-amber-950/40 border-amber-800 text-amber-300'}`;
         banner.innerHTML = `
-          <span>🌴 오늘 상태: <strong class="underline">${dayData.status}</strong> 모드 적용 중</span>
-          <button onclick="openDayConfigModal()" class="text-[10px] bg-slate-900/60 px-2 py-0.5 rounded border border-slate-700">변경</button>
+          <span>🌴 오늘 상태: <strong class="underline">${dayData.status}</strong></span>
+          <button onclick="openDayConfigModal()" class="text-[10px] bg-slate-900 px-2 py-0.5 rounded border border-slate-700">변경</button>
         `;
         banner.classList.remove('hidden');
       } else {
         banner.classList.add('hidden');
       }
 
-      // 일정 리스트 표
       const container = document.getElementById('scheduleTableBody');
       container.innerHTML = '';
 
       if (dayData.events.length === 0) {
         container.innerHTML = `
           <div class="p-8 text-center text-slate-500 text-xs">
-            등록된 일정이 없습니다. 우측 상단 '+ 일정추가'를 눌러 등록하세요.
+            등록된 일정이 없습니다. 우측 상단 '+ 추가'를 눌러 등록하세요.
           </div>
         `;
         return;
       }
 
-      // 시간순 정렬
       dayData.events.sort((a, b) => a.start.localeCompare(b.start));
 
       dayData.events.forEach((ev) => {
-        let badgeColor = 'badge-purple';
-        if (ev.type === '회의') badgeColor = 'badge-amber';
-        if (ev.type === '물품전달') badgeColor = 'badge-blue';
-        if (ev.type === '생활교육') badgeColor = 'badge-rose';
-
-        // 이름 옆 '방문' 글자 제거 필터링
-        const cleanTitle = ev.title.replace(/\s*방문\s*/g, '').trim();
+        const isJungjum = (ev.name === '손금천');
+        const isMeeting = ev.name.includes('조회') || ev.name.includes('회의');
 
         const row = document.createElement('div');
-        row.className = 'p-3 flex items-start justify-between hover:bg-slate-800/40 transition';
+        row.className = 'p-3 flex items-center justify-between hover:bg-slate-800/30 transition';
         row.innerHTML = `
           <div class="flex-1 pr-2">
+            <!-- 1. 시간 (클릭하면 1초만에 빠른 시간 변경 창 열림) -->
+            <div class="flex items-center gap-2 mb-1.5">
+              <button onclick="openQuickTime(${ev.id})" class="text-xs font-black neon-green bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded-lg hover:bg-emerald-900/50 flex items-center gap-1 active:scale-95 transition">
+                <span>${ev.start} ~ ${ev.end}</span>
+                <i class="fa-solid fa-pen text-[9px] text-emerald-400/70"></i>
+              </button>
+              ${isJungjum ? '<span class="text-[10px] bg-emerald-500 text-slate-950 px-1.5 py-0.2 rounded font-black">중점 60분</span>' : ''}
+              ${isMeeting ? '<span class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.2 rounded font-black">복지관 회의</span>' : ''}
+            </div>
+
+            <!-- 2. 성함 + 간단 주소 (어르신 글자 완전 삭제) -->
             <div class="flex items-center gap-2 mb-1">
-              <span class="text-xs font-black neon-text-green">${ev.start} ~ ${ev.end}</span>
-              <span class="text-[10px] px-2 py-0.5 rounded font-black ${badgeColor}">${ev.type}</span>
-              ${cleanTitle === '손금천' ? '<span class="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-700 px-1.5 py-0.5 rounded font-black">중점 60분</span>' : ''}
+              <span class="text-sm font-black text-white">${ev.name}</span>
+              ${ev.loc ? `<span class="text-[11px] font-semibold text-cyan-300 bg-cyan-950/60 border border-cyan-800/50 px-1.5 py-0.2 rounded">${ev.loc}</span>` : ''}
             </div>
-            <div class="text-sm font-bold text-white mb-0.5">${cleanTitle}</div>
-            <div class="text-xs text-slate-400 flex items-center gap-2">
-              <span>📋 ${ev.service || '안부확인'}</span>
-              ${ev.loc ? `<span class="text-[11px] text-slate-500">📍 ${ev.loc}</span>` : ''}
+
+            <!-- 3. 상세 메모 -->
+            <div class="text-xs text-slate-400">
+              📋 ${ev.service || '안부확인'}
             </div>
           </div>
-          <div class="flex flex-col gap-1.5 items-end shrink-0 pt-0.5">
-            <button onclick="deleteEvent(${ev.id})" class="text-slate-500 hover:text-rose-400 text-xs p-1">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          </div>
+
+          <!-- 삭제 버튼 -->
+          <button onclick="deleteEvent(${ev.id})" class="text-slate-500 hover:text-rose-400 text-xs p-2 shrink-0">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
         `;
         container.appendChild(row);
       });
     }
 
-    // --- 모달 제어 ---
+    // --- 1초 퀵 시간 변경 모달 열기 ---
+    function openQuickTime(id) {
+      const dayData = scheduleData.days[currentDay];
+      const ev = dayData.events.find(e => e.id === id);
+      if (!ev) return;
+
+      editingEventId = id;
+      document.getElementById('timeModalTargetName').textContent = `대상: ${ev.name} [${ev.loc || ''}]`;
+      document.getElementById('quickStart').value = ev.start;
+      document.getElementById('quickEnd').value = ev.end;
+
+      document.getElementById('timeModal').classList.remove('hidden');
+      document.getElementById('timeModal').classList.add('flex');
+    }
+
+    function closeTimeModal() {
+      document.getElementById('timeModal').classList.add('hidden');
+      document.getElementById('timeModal').classList.remove('flex');
+      editingEventId = null;
+    }
+
+    function applyTimePreset(s, e) {
+      document.getElementById('quickStart').value = s;
+      document.getElementById('quickEnd').value = e;
+    }
+
+    function saveQuickTime() {
+      if (!editingEventId) return;
+      const dayData = scheduleData.days[currentDay];
+      const ev = dayData.events.find(e => e.id === editingEventId);
+      if (ev) {
+        ev.start = document.getElementById('quickStart').value;
+        ev.end = document.getElementById('quickEnd').value;
+        saveData();
+      }
+      closeTimeModal();
+    }
+
+    // --- 일정 추가 모달 ---
     function openAddEventModal() {
-      document.getElementById('modalTitle').textContent = `${currentDay}요일 일정 추가`;
-      document.getElementById('inputEventType').value = '어르신';
-      document.getElementById('seniorSelectBox').classList.remove('hidden');
+      document.getElementById('modalTitle').textContent = `${currentDay}요일 새 일정 추가`;
       document.getElementById('inputSenior').value = '';
-      document.getElementById('inputTitle').value = '';
+      document.getElementById('inputName').value = '';
+      document.getElementById('inputLoc').value = '';
       document.getElementById('inputStartTime').value = '14:20';
       document.getElementById('inputEndTime').value = '14:50';
       document.getElementById('inputService').value = '안부+말벗';
@@ -380,64 +456,38 @@
       document.getElementById('eventModal').classList.remove('flex');
     }
 
-    function toggleSeniorSelect(val) {
-      const box = document.getElementById('seniorSelectBox');
-      if (val === '어르신') {
-        box.classList.remove('hidden');
-      } else {
-        box.classList.add('hidden');
-        if (val === '물품전달') {
-          document.getElementById('inputTitle').value = '달달떡집 영양떡 전달';
-          document.getElementById('inputService').value = '식료품지원(달달떡집)';
-        } else if (val === '생활교육') {
-          document.getElementById('inputTitle').value = '영양/보건 생활교육';
-          document.getElementById('inputService').value = '생활교육 프로그램';
-        } else if (val === '회의') {
-          document.getElementById('inputTitle').value = '복지관 회의';
-          document.getElementById('inputService').value = '영통종합사회복지관';
-        }
-      }
-    }
-
     function autoFillSenior(val) {
       if (!val) return;
-      const name = val.split(' ')[0];
-      document.getElementById('inputTitle').value = name; // '방문' 글자 없이 이름만 세팅
-      if (name === '손금천') {
-        document.getElementById('inputStartTime').value = '13:00';
-        document.getElementById('inputEndTime').value = '14:00';
-        document.getElementById('inputService').value = '신체·가사·인지지원 (중점 60분)';
-      } else if (name === '권희자') {
-        document.getElementById('inputStartTime').value = '12:10';
-        document.getElementById('inputEndTime').value = '12:40';
-        document.getElementById('inputService').value = '안부+말벗 (30분)';
-      }
+      const [name, loc, start, end, type] = val.split('|');
+      document.getElementById('inputName').value = name;
+      document.getElementById('inputLoc').value = loc;
+      document.getElementById('inputStartTime').value = start;
+      document.getElementById('inputEndTime').value = end;
+      document.getElementById('inputService').value = (type === '중점') ? '신체·가사·인지지원 (중점 60분)' : '안부+말벗 (30분)';
     }
 
     function saveEvent() {
-      const type = document.getElementById('inputEventType').value;
-      let title = document.getElementById('inputTitle').value.trim();
-      title = title.replace(/\s*방문\s*/g, '').trim(); // '방문' 글자 자동 제거
+      let name = document.getElementById('inputName').value.trim();
+      name = name.replace(/어르신/g, '').trim(); // '어르신' 글자 무조건 제거
+      const loc = document.getElementById('inputLoc').value.trim();
       const start = document.getElementById('inputStartTime').value;
       const end = document.getElementById('inputEndTime').value;
       const service = document.getElementById('inputService').value.trim();
 
-      if (!title) {
-        alert('성함 또는 일정 제목을 입력하세요.');
+      if (!name) {
+        alert('성함을 입력해주세요.');
         return;
       }
 
-      const newEv = {
+      scheduleData.days[currentDay].events.push({
         id: Date.now(),
-        type: type,
-        title: title,
+        name: name,
+        loc: loc,
         start: start,
         end: end,
-        service: service,
-        loc: ''
-      };
+        service: service
+      });
 
-      scheduleData.days[currentDay].events.push(newEv);
       saveData();
       closeModal();
     }
@@ -449,7 +499,7 @@
       }
     }
 
-    // --- 요일 설정 (휴가 / 고정 회의) ---
+    // --- 요일 회의 / 휴가 설정 ---
     function openDayConfigModal() {
       document.getElementById('configDayTitle').textContent = `${currentDay}요일 회의 / 휴가 설정`;
       highlightVacationBtn(scheduleData.days[currentDay].status);
@@ -482,21 +532,19 @@
     function quickAddMeeting(meetingName, start, end) {
       scheduleData.days[currentDay].events.unshift({
         id: Date.now(),
-        type: '회의',
-        title: meetingName,
+        name: meetingName,
+        loc: '복지관 회의실',
         start: start,
         end: end,
-        service: '영통종합사회복지관',
-        loc: '복지관 회의실'
+        service: '영통종합사회복지관'
       });
       saveData();
       closeConfigModal();
     }
 
-    // --- 전체 주간 일정 원클릭 텍스트 복사 ---
+    // --- 텍스트 복사 ---
     function copyWeeklySchedule() {
-      let text = `[주간 근무 일정표 (09:30~15:00)]\n담당: 조영애\n\n`;
-      
+      let text = `[주간 근무 일정표 (09:30~15:00)]\n\n`;
       text += `📌 [이번 주 전달사항 / 과제]\n`;
       scheduleData.todos.forEach(t => {
         text += `${t.done ? '✅' : '▫️'} ${t.text}\n`;
@@ -510,19 +558,20 @@
           text += `  - 일정 없음\n`;
         } else {
           d.events.forEach(e => {
-            const clean = e.title.replace(/\s*방문\s*/g, '').trim();
-            text += `  • ${e.start}~${e.end} | ${clean} (${e.service})\n`;
+            const clean = e.name.replace(/어르신/g, '').trim();
+            const locText = e.loc ? ` [${e.loc}]` : '';
+            text += `  • ${e.start}~${e.end} | ${clean}${locText} (${e.service})\n`;
           });
         }
         text += `\n`;
       });
 
       navigator.clipboard.writeText(text).then(() => {
-        alert('주간 전체 일정이 복사되었습니다!\n카톡이나 메모장에 붙여넣으세요.');
+        alert('주간 일정이 깔끔하게 복사되었습니다!\n카톡이나 메모장에 붙여넣으세요.');
       });
     }
 
-    // 초기 실행
+    // 시작
     renderDayTabs();
     renderCurrentDay();
     renderTodos();
