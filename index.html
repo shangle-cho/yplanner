@@ -1,857 +1,790 @@
+```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>생활지원사 맞춤 방문 케어 매니저</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>어르신 방문 주간 스케줄러</title>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap');
     body {
-      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
-      -webkit-tap-highlight-color: transparent;
+      font-family: 'Pretendard', sans-serif;
+      touch-action: manipulation;
     }
-    /* 커스텀 스크롤바 */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
     }
-    ::-webkit-scrollbar-track {
-      background: #f1f5f9;
-    }
-    ::-webkit-scrollbar-thumb {
+    .custom-scrollbar::-webkit-scrollbar-thumb {
       background: #cbd5e1;
-      border-radius: 9999px;
-    }
-    /* 카드 확장 트랜지션 */
-    .expand-content {
-      transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease-out;
+      border-radius: 4px;
     }
   </style>
 </head>
-<body class="bg-amber-50/50 min-h-screen text-slate-800 pb-16 antialiased">
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-24 select-none">
 
-  <!-- 최상단 헤더 -->
-  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-amber-100 shadow-sm px-4 py-3">
-    <div class="max-w-xl mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-rose-400 flex items-center justify-center text-white shadow-md shadow-amber-200">
-          <i class="fa-solid fa-heart-pulse text-lg"></i>
+  <!-- 상단 네비게이션 헤더 -->
+  <header class="bg-white/90 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200 px-4 py-3 shadow-xs">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg font-bold shadow-md shadow-blue-200">
+          <i class="fa-solid fa-calendar-check"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold text-slate-900 leading-tight">영애의 케어 스케줄러</h1>
-          <p class="text-xs text-amber-700 font-medium" id="header-today-text">실시간 날짜 로딩중...</p>
+          <h1 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">어르신 방문 주간 스케줄러</h1>
+          <p class="text-[11px] text-slate-500 font-medium">손금천 어르신(매일 13시) 중점 & 맞춤 휴가 관리</p>
         </div>
       </div>
-      <button onclick="goToToday()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 hover:bg-amber-200 active:scale-95 transition-all">
-        <i class="fa-solid fa-calendar-day"></i>
-        <span>오늘로</span>
-      </button>
+      <div class="flex items-center gap-1.5">
+        <button onclick="copyScheduleText()" class="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold border border-blue-200 active:scale-95 transition flex items-center gap-1">
+          <i class="fa-regular fa-copy"></i>
+          <span class="hidden sm:inline">일정 텍스트</span> 복사
+        </button>
+        <button onclick="resetToCustomDefault()" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold border border-slate-300 active:scale-95 transition flex items-center gap-1">
+          <i class="fa-solid fa-rotate-left"></i>
+          <span class="hidden sm:inline">금주 기본값</span> 초기화
+        </button>
+      </div>
     </div>
   </header>
 
   <!-- 메인 컨테이너 -->
-  <main class="max-w-xl mx-auto px-4 pt-4">
+  <main class="max-w-4xl mx-auto px-3 sm:px-4 pt-4 space-y-4">
 
-    <!-- 요일 선택 탭바 (실제 현재 주의 날짜 매핑) -->
-    <div class="bg-white rounded-2xl p-2 shadow-sm border border-slate-100 mb-4">
-      <div class="grid grid-cols-5 gap-1.5" id="weekday-tabs">
-        <!-- JS로 동적 렌더링 (월~금) -->
-      </div>
-    </div>
-
-    <!-- 오늘 요일 테마 헤더 카드 -->
-    <div id="day-summary-card" class="bg-gradient-to-br from-amber-500 to-orange-400 rounded-2xl p-4 text-white shadow-lg shadow-amber-500/20 mb-4 flex items-center justify-between">
-      <div>
-        <div class="flex items-center gap-2">
-          <span id="badge-day-label" class="px-2.5 py-0.5 rounded-full bg-white/20 text-xs font-bold tracking-wide backdrop-blur-sm">월요일</span>
-          <span id="badge-date-string" class="text-xs text-amber-100 font-medium">10월 12일</span>
+    <!-- 현장 알림 배너 & 핵심 가이드 -->
+    <section class="bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden">
+      <div class="relative z-10">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <span class="bg-white/20 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-white/30 backdrop-blur-sm">
+            ⭐ 이번 주 특별 운영 알림
+          </span>
+          <span class="text-xs text-amber-300 font-semibold flex items-center gap-1">
+            <i class="fa-solid fa-person-walking"></i> 방문 간 휴식·이동 20분 보장
+          </span>
         </div>
-        <h2 id="day-route-title" class="text-xl font-black mt-1">망포동 집중 방문 데이</h2>
+        <h2 class="text-base sm:text-lg font-bold leading-snug">
+          손금천 어르신 매일 13:00~14:00 고정 | 금요일 휴가 대응 모드
+        </h2>
+        <p class="text-xs text-blue-100 mt-1 opacity-95 leading-relaxed">
+          금요일 방문 예정이던 <span class="text-amber-300 font-bold">박재순·황명숙</span> 어르신을 월요일로 분산 배치했습니다. 일정을 터치하여 언제든 원하는 요일·시간으로 1초 만에 변경하세요!
+        </p>
       </div>
-      <div class="text-right">
-        <div class="text-xs text-amber-100">케어 대상</div>
-        <div id="day-target-count" class="text-2xl font-black">3명</div>
-      </div>
-    </div>
+    </section>
 
-    <!-- 주간 복지관 업무 & 할 일 입력/관리 섹션 (날짜 아래, 어르신 이름 위) -->
-    <div class="bg-white rounded-2xl p-4 shadow-sm border border-indigo-100 mb-4">
-      <div class="flex items-center justify-between mb-2.5">
-        <div class="flex items-center gap-2">
-          <div class="w-7 h-7 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs">
-            <i class="fa-solid fa-clipboard-check"></i>
-          </div>
-          <h3 class="font-extrabold text-sm text-slate-800">이번 주 복지관 업무 & 주간 할 일</h3>
+    <!-- 휴가 및 빠른 요일 비우기 툴바 -->
+    <section class="bg-white rounded-2xl p-3.5 border border-slate-200/90 shadow-xs">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-1.5">
+          <i class="fa-solid fa-umbrella-beach text-amber-500 text-sm"></i>
+          <span class="text-xs sm:text-sm font-bold text-slate-800">요일별 휴가 / 일정 비우기</span>
         </div>
-        <span id="welfare-count-badge" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-          0/0 완료
-        </span>
+        <span class="text-[11px] text-slate-500">버튼 터치 시 해당 요일 일정이 대기함으로 이동</span>
       </div>
-
-      <!-- 새 할 일 입력 칸 -->
-      <div class="flex gap-1.5 mb-3">
-        <input type="text" 
-               id="welfare-input" 
-               placeholder="예: 주간 회의 전달사항, 후원품 수령, 일지 제출 등" 
-               onkeypress="handleWelfareInputKey(event)"
-               class="flex-1 text-xs px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-slate-800">
-        <button onclick="addWelfareTask()" 
-                class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1">
-          <i class="fa-solid fa-plus text-[10px]"></i>
-          <span>추가</span>
+      <div class="grid grid-cols-5 gap-1.5 sm:gap-2">
+        <button id="btn-holiday-mon" onclick="toggleHoliday('월')" class="py-2 rounded-xl text-xs font-bold border transition flex flex-col items-center justify-center gap-0.5 bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
+          <span>월요일</span>
+          <span class="text-[10px] text-slate-500 font-normal">정상 근무</span>
+        </button>
+        <button id="btn-holiday-tue" onclick="toggleHoliday('화')" class="py-2 rounded-xl text-xs font-bold border transition flex flex-col items-center justify-center gap-0.5 bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
+          <span>화요일</span>
+          <span class="text-[10px] text-slate-500 font-normal">정상 근무</span>
+        </button>
+        <button id="btn-holiday-wed" onclick="toggleHoliday('수')" class="py-2 rounded-xl text-xs font-bold border transition flex flex-col items-center justify-center gap-0.5 bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
+          <span>수요일</span>
+          <span class="text-[10px] text-slate-500 font-normal">정상 근무</span>
+        </button>
+        <button id="btn-holiday-thu" onclick="toggleHoliday('목')" class="py-2 rounded-xl text-xs font-bold border transition flex flex-col items-center justify-center gap-0.5 bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
+          <span>목요일</span>
+          <span class="text-[10px] text-slate-500 font-normal">정상 근무</span>
+        </button>
+        <button id="btn-holiday-fri" onclick="toggleHoliday('금')" class="py-2 rounded-xl text-xs font-bold border transition flex flex-col items-center justify-center gap-0.5 bg-rose-50 border-rose-300 text-rose-700">
+          <span>금요일</span>
+          <span class="text-[10px] font-bold text-rose-600">🏖️ 휴가 중</span>
         </button>
       </div>
+    </section>
 
-      <!-- 복지관 할 일 리스트 -->
-      <div id="welfare-task-list" class="space-y-1.5 max-h-52 overflow-y-auto pr-0.5">
-        <!-- JS로 동적 렌더링 -->
+    <!-- 대기 중인 어르신 보관함 (휴가로 밀리거나 미배치된 어르신) -->
+    <section id="unassignedSection" class="bg-amber-50/70 border border-amber-200 rounded-2xl p-3.5 hidden">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-1.5">
+          <i class="fa-solid fa-inbox text-amber-600 text-sm"></i>
+          <span class="text-xs sm:text-sm font-bold text-amber-900">재배치 대기 목록 (<span id="unassignedCount">0</span>명)</span>
+        </div>
+        <span class="text-[11px] text-amber-700">카드를 누르면 원하는 요일로 즉시 배치할 수 있습니다</span>
       </div>
+      <div id="unassignedList" class="flex flex-wrap gap-2"></div>
+    </section>
+
+    <!-- 요일별 시간표 탭 네비게이션 (모바일 최적화) -->
+    <div class="flex items-center justify-between gap-1 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-xs">
+      <button onclick="switchDayTab('전체')" id="tab-전체" class="tab-btn flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition bg-blue-600 text-white shadow-xs">
+        전체 보기
+      </button>
+      <button onclick="switchDayTab('월')" id="tab-월" class="tab-btn flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition text-slate-600 hover:bg-slate-100">
+        월요일
+      </button>
+      <button onclick="switchDayTab('화')" id="tab-화" class="tab-btn flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition text-slate-600 hover:bg-slate-100">
+        화요일
+      </button>
+      <button onclick="switchDayTab('수')" id="tab-수" class="tab-btn flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition text-slate-600 hover:bg-slate-100">
+        수요일
+      </button>
+      <button onclick="switchDayTab('목')" id="tab-목" class="tab-btn flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition text-slate-600 hover:bg-slate-100">
+        목요일
+      </button>
+      <button onclick="switchDayTab('금')" id="tab-금" class="tab-btn flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition text-slate-600 hover:bg-slate-100">
+        금요일
+      </button>
     </div>
 
-    <!-- 방문 스케줄 리스트 컨테이너 -->
-    <div class="space-y-3" id="schedule-list">
-      <!-- 어르신 카드들이 JS를 통해 삽입됩니다 -->
+    <!-- 주간 요일 카드 그리드 -->
+    <div id="scheduleGrid" class="grid grid-cols-1 md:grid-cols-5 gap-3.5 items-start">
+      <!-- 월요일 -->
+      <div id="col-월" class="day-column bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden"></div>
+      <!-- 화요일 -->
+      <div id="col-화" class="day-column bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden"></div>
+      <!-- 수요일 -->
+      <div id="col-수" class="day-column bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden"></div>
+      <!-- 목요일 -->
+      <div id="col-목" class="day-column bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden"></div>
+      <!-- 금요일 -->
+      <div id="col-금" class="day-column bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden"></div>
     </div>
 
-    <!-- 토스트 알림창 UI -->
-    <div id="toast-modal" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 text-white px-5 py-3 rounded-full text-sm font-medium shadow-xl opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-2">
-      <i class="fa-solid fa-circle-check text-emerald-400"></i>
-      <span id="toast-message">메모가 안전하게 저장되었습니다!</span>
-    </div>
+    <!-- 범례 및 안내 -->
+    <section class="bg-white rounded-2xl p-3.5 border border-slate-200 text-xs text-slate-600 flex flex-wrap gap-4 items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-1.5">
+          <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+          <span class="font-bold text-slate-800">중점 어르신 (매일 60분)</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="w-3 h-3 rounded-full bg-blue-600"></span>
+          <span class="font-bold text-slate-800">일반 어르신 (30분)</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="w-3 h-3 rounded-full bg-slate-300"></span>
+          <span class="font-medium text-slate-500">20분 이동/휴식</span>
+        </div>
+      </div>
+      <div class="text-[11px] text-slate-400">
+        * 이정순 어르신(신동)은 요청에 따라 일정에서 제외되어 있습니다.
+      </div>
+    </section>
 
   </main>
 
+  <!-- 일정 편집/이동 모달 -->
+  <div id="editModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl border border-slate-100 animate-in fade-in zoom-in duration-150">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <span id="modalSeniorCluster" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">권역</span>
+          <h3 id="modalSeniorName" class="text-lg font-black text-slate-900 mt-1">어르신 방문 변경</h3>
+        </div>
+        <button onclick="closeEditModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="editForm" onsubmit="saveScheduleItem(event)" class="space-y-3.5 pt-3.5">
+        <input type="hidden" id="editScheduleId">
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">방문 요일</label>
+          <div class="grid grid-cols-5 gap-1.5">
+            <button type="button" onclick="selectModalDay('월')" class="modal-day-btn py-2 text-xs font-bold rounded-xl border border-slate-200" data-day="월">월</button>
+            <button type="button" onclick="selectModalDay('화')" class="modal-day-btn py-2 text-xs font-bold rounded-xl border border-slate-200" data-day="화">화</button>
+            <button type="button" onclick="selectModalDay('수')" class="modal-day-btn py-2 text-xs font-bold rounded-xl border border-slate-200" data-day="수">수</button>
+            <button type="button" onclick="selectModalDay('목')" class="modal-day-btn py-2 text-xs font-bold rounded-xl border border-slate-200" data-day="목">목</button>
+            <button type="button" onclick="selectModalDay('금')" class="modal-day-btn py-2 text-xs font-bold rounded-xl border border-slate-200" data-day="금">금</button>
+          </div>
+          <input type="hidden" id="editDay">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">시작 시간</label>
+            <input type="time" id="editStartTime" required class="w-full text-sm font-semibold p-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">종료 시간</label>
+            <input type="time" id="editEndTime" required class="w-full text-sm font-semibold p-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">방문 메모 / 주의사항</label>
+          <input type="text" id="editNote" placeholder="예: 무릎 온찜질, 약 복용 확인" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+
+        <div class="pt-2 flex gap-2">
+          <button type="button" onclick="moveToUnassigned()" class="px-3 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold border border-rose-200 active:scale-95 transition">
+            대기함으로 빼기
+          </button>
+          <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-200 active:scale-95 transition">
+            변경 완료
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 토스트 알림창 -->
+  <div id="toastMessage" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900/90 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-full shadow-lg pointer-events-none transition-all duration-300 opacity-0 translate-y-3 z-50 flex items-center gap-2">
+    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+    <span id="toastText">알림 내용</span>
+  </div>
+
   <script>
     // -------------------------------------------------------------
-    // 1. 기본 마스터 데이터 (어르신별 주간 일정 및 기본 체크리스트)
+    // 1. 기본 마스터 데이터 (어르신 정보 & 권역)
     // -------------------------------------------------------------
-    const WEEK_SCHEDULE = {
-      1: { // 월
-        dayName: '월요일',
-        routeTitle: '망포동 집중 방문 데이 🏡',
-        theme: 'from-amber-500 to-orange-400',
-        items: [
-          {
-            id: 'mon-1',
-            elderId: 'ajh',
-            name: '안정훈 어르신',
-            time: '10:10 ~ 10:45',
-            location: '망포동 세흥빌라 나동 203호',
-            tag: '방문',
-            defaultChecks: [
-              '화장실 문턱 높이 낙상 위험 점검 및 발판 상태 확인',
-              '두피 상태 및 환부 청결 확인',
-              '혈압 및 가을철 기본 건강 안부 묻기',
-              '실내 환기 및 복약 여부 점검'
-            ]
-          },
-          {
-            id: 'mon-2',
-            elderId: 'kko',
-            name: '김금옥 어르신',
-            time: '10:50 ~ 11:30',
-            location: '망포동 세흥빌라 나동 202호 (같은 동 이동)',
-            tag: '방문',
-            defaultChecks: [
-              '허리 통증 정도 확인 및 파스/온찜질 안내',
-              '주방 싱크대 및 냉장고 식품 신선도 체크',
-              '물 자주 마시기 및 실내 가벼운 스트레칭 권유',
-              '우편물 및 공과금 고지서 점검'
-            ]
-          },
-          {
-            id: 'mon-lunch',
-            type: 'break',
-            name: '점심 식사 및 휴식 🍱',
-            time: '12:00 ~ 12:30',
-            location: '망포동 인근 편한 식당 또는 휴식처'
-          },
-          {
-            id: 'mon-3',
-            elderId: 'kms',
-            name: '김말순 어르신',
-            time: '13:00 ~ 13:40',
-            location: '망포동 LG빌리지2차 201동 2106호',
-            tag: '방문',
-            defaultChecks: [
-              '주방 가스레인지/인덕션 화재 안전 장치 확인',
-              '간병 피로도 경청 및 따뜻한 정서 지지 말벗',
-              '복약 시간표 및 정기 병원 방문 일정 확인',
-              '낙상 위험 구역(베란다, 욕실) 매트 점검'
-            ]
-          }
-        ]
-      },
-      2: { // 화
-        dayName: '화요일',
-        routeTitle: '신동 ➡️️ 영통 연계 데이 🚗',
-        theme: 'from-emerald-500 to-teal-500',
-        items: [
-          {
-            id: 'tue-1',
-            elderId: 'ljs',
-            name: '이정순 어르신 (집중 케어 2시간 ⭐)',
-            time: '10:00 ~ 12:00',
-            location: '신동 단독주택 (신원로 39-9)',
-            tag: '집중 2시간',
-            badgeColor: 'bg-rose-100 text-rose-700',
-            defaultChecks: [
-              '도착 후 체온 및 당일 컨디션 확인',
-              '우편함 고지서 및 휴대폰 수신 문자/알림 확인 꼼꼼히 해드리기',
-              '말벗 케어: 최근 불편하신 점이나 불안한 부분 경청',
-              '실내 정리 정돈 및 주방 식수/간식 보관 상태 체크',
-              '가벼운 손발 마사지 및 실내 보행 연습 보조'
-            ]
-          },
-          {
-            id: 'tue-lunch',
-            type: 'break',
-            name: '점심 식사 및 영통 이동 🍱',
-            time: '12:00 ~ 12:30',
-            location: '신동 ➡️ 영통 벽적골 방면 이동'
-          },
-          {
-            id: 'tue-2',
-            elderId: 'kib',
-            name: '김입분 어르신',
-            time: '13:00 ~ 13:50',
-            location: '영통동 벽적골 한신 811동 106호',
-            tag: '방문',
-            defaultChecks: [
-              '정면에서 입모양 크고 또렷하게 대화(난청 배려)',
-              '우편물 및 복지 혜택 안내장 도착분 확인',
-              '보청기 작동 상태 및 배터리 잔량 점검',
-              '가을철 관절 통증 및 낙상 방지 슬리퍼 착용 권유'
-            ]
-          }
-        ]
-      },
-      3: { // 수
-        dayName: '수요일',
-        routeTitle: '복지관 & 벽적골 ➡ 신동 🏥',
-        theme: 'from-sky-500 to-indigo-500',
-        items: [
-          {
-            id: 'wed-call-1',
-            elderId: 'khj',
-            name: '권희자 어르신 (유선 안부 📞)',
-            time: '10:30경 (복지관 출발 전)',
-            location: '유선 전화 상담',
-            tag: '전화 안부',
-            badgeColor: 'bg-purple-100 text-purple-700',
-            defaultChecks: [
-              '오늘 건강 상태 및 식사 여부 확인',
-              '환절기 감기 기운 및 보일러 작동 상태 체크',
-              '주말 사이 특이사항 여부 경청'
-            ]
-          },
-          {
-            id: 'wed-1',
-            elderId: 'sji',
-            name: '송정인 어르신',
-            time: '10:40 ~ 11:20',
-            location: '영통동 벽적골 주공8단지 801동 1505호',
-            tag: '방문',
-            defaultChecks: [
-              '12월 예정된 이사 진행 상황 및 서류 확인',
-              '이사 준비 중 심리적 불안감 지지 및 경청',
-              '기본 혈압 및 식사 잘 챙기시는지 확인'
-            ]
-          },
-          {
-            id: 'wed-2',
-            elderId: 'skc',
-            name: '손금천 어르신',
-            time: '11:30 ~ 12:10',
-            location: '신동 빌라 202호 (공동현관 🔔1378)',
-            tag: '방문',
-            defaultChecks: [
-              '공동현관 호출 후 안전하게 방문',
-              '보훈 가족 건강 안부 및 일상 활력 체크',
-              '무릎 관절 상태 및 정형외과 약 복용 확인'
-            ]
-          },
-          {
-            id: 'wed-lunch',
-            type: 'break',
-            name: '점심 식사 및 휴식 🍱',
-            time: '12:10 ~ 12:50',
-            location: '신동 인근'
-          },
-          {
-            id: 'wed-3',
-            elderId: 'ljs',
-            name: '이정순 어르신 (오후 케어 1시간)',
-            time: '13:00 ~ 14:00',
-            location: '신동 단독주택 (신원로 39-9)',
-            tag: '방문 1시간',
-            badgeColor: 'bg-rose-100 text-rose-700',
-            defaultChecks: [
-              '점심 식사 드셨는지 확인 및 소화 상태 체크',
-              '전날 말씀하셨던 심부름 및 문자 확인 결과 안내',
-              '마당 및 현관문 잠금장치 안전 점검'
-            ]
-          }
-        ]
-      },
-      4: { // 목
-        dayName: '목요일',
-        routeTitle: '망포 세흥 ➡️ 신동 케어 🏃',
-        theme: 'from-violet-500 to-fuchsia-500',
-        items: [
-          {
-            id: 'thu-1',
-            elderId: 'phr',
-            name: '박향례 어르신',
-            time: '11:20 ~ 11:40',
-            location: '망포동 세흥아파트 209호 (11:20 귀가 맞춤)',
-            tag: '방문',
-            defaultChecks: [
-              '11:20 복지시설 귀가 시간에 맞춰 안전 맞이',
-              '외출 복장 정리 및 손 씻기 보조',
-              '가을철 외출 시 지팡이 사용 상태 점검'
-            ]
-          },
-          {
-            id: 'thu-2',
-            elderId: 'sgj',
-            name: '신길지 어르신',
-            time: '11:40 ~ 12:00',
-            location: '망포동 세흥아파트 302호 (윗층 연계)',
-            tag: '방문',
-            defaultChecks: [
-              '같은 아파트 윗층 방문 / 최근 후원품 보관 및 섭취 확인',
-              '복약 체크 및 혈압 정상 범위 확인',
-              '실내 쓰레기 배출 보조'
-            ]
-          },
-          {
-            id: 'thu-lunch',
-            type: 'break',
-            name: '12시 점심 식사 및 이동 🍱',
-            time: '12:00 ~ 12:40',
-            location: '망포동 ➡️ 신동 이동'
-          },
-          {
-            id: 'thu-3',
-            elderId: 'ljs',
-            name: '이정순 어르신 (오후 케어 1시간)',
-            time: '13:00 ~ 14:00',
-            location: '신동 단독주택 (신원로 39-9)',
-            tag: '방문 1시간',
-            badgeColor: 'bg-rose-100 text-rose-700',
-            defaultChecks: [
-              '주 후반부 기력 및 식욕 상태 확인',
-              '주말 동안 드실 음식 및 비상 연락망 점검',
-              '어르신 말벗 및 따뜻한 주말 응원'
-            ]
-          }
-        ]
-      },
-      5: { // 금
-        dayName: '금요일',
-        routeTitle: '망포동 주간 마무리 데이 🌸',
-        theme: 'from-rose-500 to-pink-500',
-        items: [
-          {
-            id: 'fri-1',
-            elderId: 'hms',
-            name: '황명숙 어르신',
-            time: '10:00 ~ 11:00 (시간엄수)',
-            location: '망포동 기선빌라 103호',
-            tag: '방문 1시간',
-            defaultChecks: [
-              '고정 방문 약속 시간(10시) 엄수',
-              '중립적이고 차분한 태도로 경청 위주 소통',
-              '주방 및 화장실 누수/안전 시설물 체크',
-              '가을철 건조 피부 관리 및 로션 도포 보조'
-            ]
-          },
-          {
-            id: 'fri-2',
-            elderId: 'pjs',
-            name: '박재순 어르신',
-            time: '11:10 ~ 11:50',
-            location: '망포동 원룸 (영통로90번길 4-12)',
-            tag: '대면 필수',
-            defaultChecks: [
-              '전화 난청이 심하므로 반드시 대면 방문하여 안부 확인',
-              '원룸 내 환기 상태 및 보일러 가동 점검',
-              '처방약 남아있는 수량 체크 및 병원 방문일 확인',
-              '비상 연락 호출벨(응급안전벨) 정상 작동 여부 확인'
-            ]
-          },
-          {
-            id: 'fri-3',
-            elderId: 'eys',
-            name: '엄영순 어르신 (장기 부재 모니터링)',
-            time: '상시 모니터링',
-            location: '망포1동 (박재순 어르신 인근)',
-            tag: '상시 보고',
-            badgeColor: 'bg-slate-100 text-slate-700',
-            defaultChecks: [
-              '장기 부재 사유 및 복지관 담당 사회복지사 공유 현황 점검',
-              '자택 외관 특이사항(우편물 적체 여부 등) 순찰'
-            ]
-          }
-        ]
-      }
+    const SENIOR_INFO = {
+      '손금천': { cluster: 'B지역(신동)', address: '신동 202호', isFocus: true, defaultDuration: 60, color: 'amber' },
+      '권희자': { cluster: 'B지역(신동)', address: '신동래미안 201동', isFocus: false, defaultDuration: 30, color: 'blue' },
+      '박향례': { cluster: 'A지역(세흥/태장)', address: '세흥아파트 209호', isFocus: false, defaultDuration: 30, color: 'emerald' },
+      '신길지': { cluster: 'A지역(세흥/태장)', address: '세흥아파트 302호', isFocus: false, defaultDuration: 30, color: 'emerald' },
+      '김금옥': { cluster: 'A지역(세흥/태장)', address: '세흥빌라 나-202호', isFocus: false, defaultDuration: 30, color: 'emerald' },
+      '안정훈': { cluster: 'A지역(세흥/태장)', address: '세흥빌라 나-203호', isFocus: false, defaultDuration: 30, color: 'emerald' },
+      '김말순': { cluster: 'A지역(세흥/태장)', address: '태장로 lg빌리지 201동', isFocus: false, defaultDuration: 30, color: 'emerald' },
+      '박재순': { cluster: 'C지역(망포1동)', address: '영통로90번길', isFocus: false, defaultDuration: 30, color: 'purple' },
+      '황명숙': { cluster: 'C지역(망포1동)', address: '기선빌라 103호', isFocus: false, defaultDuration: 30, color: 'purple' },
+      '김입분': { cluster: 'D지역(벽적골)', address: '벽적골 8단지', isFocus: false, defaultDuration: 30, color: 'cyan' },
+      '송정인': { cluster: 'D지역(벽적골)', address: '벽적골 8단지', isFocus: false, defaultDuration: 30, color: 'cyan' }
+      // * 이정순 어르신: 요청에 의해 제외됨
     };
 
-    // -------------------------------------------------------------
-    // 2. 상태 관리 (오늘 날짜, 선택된 요일, 메모 및 체크박스)
-    // -------------------------------------------------------------
-    let currentDate = new Date();
-    // 1(월) ~ 5(금) 기본값 맞추기 (주말이면 월요일 기본)
-    let currentDayOfWeek = currentDate.getDay(); 
-    if (currentDayOfWeek < 1 || currentDayOfWeek > 5) {
-      currentDayOfWeek = 1; // 주말엔 월요일 기본 선택
-    }
-
-    let selectedWeekday = currentDayOfWeek;
-    let expandedCardId = null;
-
-    // 인메모리 저장소 (어르신별 다음 방문 메모 및 완료된 체크박스)
-    // localStorage와 연동하여 창을 닫거나 새로고침해도 메모와 체크 상태가 유지되도록 처리
-    const memoryNotes = JSON.parse(localStorage.getItem('care_notes') || '{}');
-    const memoryCheckedBoxes = JSON.parse(localStorage.getItem('care_checks') || '{}');
-
-    // 주간 복지관 업무 목록 (기본 추천 항목 포함 및 브라우저 영구 저장)
-    const DEFAULT_WELFARE_TASKS = [
-      { id: 'wf-1', text: '주간 회의 참석 및 주요 전달사항 숙지', completed: false },
-      { id: 'wf-2', text: '출퇴근 실적 및 일일 모니터링 일지 점검', completed: false },
-      { id: 'wf-3', text: '복지관 후원물품 및 안내문 배부품 수령', completed: false },
-      { id: 'wf-4', text: '권희자 어르신 유선 안부 전화 진행', completed: false }
-    ];
-    let welfareTasks = JSON.parse(localStorage.getItem('care_welfare_tasks') || 'null');
-    if (!welfareTasks || !Array.isArray(welfareTasks)) {
-      welfareTasks = DEFAULT_WELFARE_TASKS;
-    }
+    const DAYS = ['월', '화', '수', '목', '금'];
+    const STORAGE_KEY = 'senior_weekly_schedule_v2';
+    const HOLIDAY_STORAGE_KEY = 'senior_weekly_holidays_v2';
 
     // -------------------------------------------------------------
-    // 3. 날짜 계산 유틸리티
+    // 2. 초기 스케줄 생성기 (사용자 요구조건 100% 반영)
     // -------------------------------------------------------------
-    function getWeekDates(baseDate) {
-      const current = new Date(baseDate);
-      const day = current.getDay();
-      // 이번 주 월요일 구하기
-      const diffToMonday = current.getDate() - day + (day === 0 ? -6 : 1);
-      const monday = new Date(current.setDate(diffToMonday));
+    function getDefaultSchedule() {
+      const list = [];
+      let idCounter = 1;
 
-      const week = {};
-      for (let i = 1; i <= 5; i++) {
-        const d = new Date(monday);
-        d.setDate(monday.getDate() + (i - 1));
-        week[i] = d;
-      }
-      return week;
-    }
-
-    const currentWeekDays = getWeekDates(currentDate);
-
-    // 날짜 포맷 (예: 10월 12일 (월))
-    function formatDateFull(d) {
-      const month = d.getMonth() + 1;
-      const date = d.getDate();
-      const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-      return `${month}월 ${date}일 (${dayNames[d.getDay()]})`;
-    }
-
-    // -------------------------------------------------------------
-    // 4. 화면 초기화 및 탭 렌더링
-    // -------------------------------------------------------------
-    function initApp() {
-      // 상단 헤더 오늘 텍스트
-      const todayStr = formatDateFull(new Date());
-      document.getElementById('header-today-text').textContent = `오늘: ${todayStr}`;
-
-      renderWelfareTasks();
-      renderWeekdayTabs();
-      renderScheduleForDay(selectedWeekday);
-    }
-
-    // -------------------------------------------------------------
-    // 복지관 주간 업무 관리 함수들
-    // -------------------------------------------------------------
-    function renderWelfareTasks() {
-      const container = document.getElementById('welfare-task-list');
-      const badge = document.getElementById('welfare-count-badge');
-      if (!container || !badge) return;
-
-      container.innerHTML = '';
-      const total = welfareTasks.length;
-      const completedCount = welfareTasks.filter(t => t.completed).length;
-      badge.textContent = `${completedCount}/${total} 완료`;
-
-      if (total === 0) {
-        container.innerHTML = `
-          <div class="text-center py-3 text-xs text-slate-400">
-            등록된 주간 복지관 업무가 없습니다. 위 칸에 입력 후 추가해보세요!
-          </div>
-        `;
-        return;
-      }
-
-      welfareTasks.forEach((task, idx) => {
-        const itemEl = document.createElement('div');
-        itemEl.className = `flex items-center justify-between gap-2 p-2 rounded-xl transition-all ${
-          task.completed ? 'bg-slate-100/70 border border-slate-200' : 'bg-indigo-50/40 border border-indigo-100/70 hover:border-indigo-200'
-        }`;
-
-        itemEl.innerHTML = `
-          <label class="flex items-center gap-2.5 flex-1 cursor-pointer select-none">
-            <input type="checkbox" 
-                   ${task.completed ? 'checked' : ''} 
-                   onchange="toggleWelfareTask(${idx})"
-                   class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-400">
-            <span class="text-xs font-medium ${task.completed ? 'line-through text-slate-400' : 'text-slate-800'} leading-tight">
-              ${escapeHtml(task.text)}
-            </span>
-          </label>
-          <button onclick="deleteWelfareTask(${idx})" 
-                  title="삭제" 
-                  class="w-6 h-6 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-white flex items-center justify-center transition-colors">
-            <i class="fa-solid fa-xmark text-xs"></i>
-          </button>
-        `;
-        container.appendChild(itemEl);
+      // 1) 손금천 어르신 (중점): 매일(월~금) 13:00 ~ 14:00 (1시간)
+      DAYS.forEach(day => {
+        list.push({
+          id: idCounter++,
+          name: '손금천',
+          day: day,
+          startTime: '13:00',
+          endTime: '14:00',
+          isFocus: true,
+          note: '⭐ 중점 대상자 (매일 1시간)',
+          unassigned: false
+        });
       });
-    }
 
-    function addWelfareTask() {
-      const input = document.getElementById('welfare-input');
-      const text = input.value.trim();
-      if (!text) {
-        showToast('할 일 내용을 입력해주세요.');
-        return;
-      }
-
-      welfareTasks.unshift({
-        id: 'wf-' + Date.now(),
-        text: text,
-        completed: false
+      // 2) 화요일: 박향례, 신길지 어르신 (세흥 블록)
+      // 손금천(13:00~14:00) 후 이동 20분 => 14:20 시작
+      list.push({
+        id: idCounter++,
+        name: '박향례',
+        day: '화',
+        startTime: '14:20',
+        endTime: '14:50',
+        isFocus: false,
+        note: '세흥아파트 209호 (방문 30분)',
+        unassigned: false
       });
-      input.value = '';
-      saveWelfareTasksToStorage();
-      renderWelfareTasks();
-      showToast('복지관 업무가 추가되었습니다.');
+      // 20분 이동 => 15:10
+      list.push({
+        id: idCounter++,
+        name: '신길지',
+        day: '화',
+        startTime: '15:10',
+        endTime: '15:40',
+        isFocus: false,
+        note: '세흥아파트 302호 (반복·무기력 케어)',
+        unassigned: false
+      });
+
+      // 3) 수요일: 김입분 어르신 (벽적골 8단지) + 송정인 어르신 (같은 8단지 묶음 연계)
+      list.push({
+        id: idCounter++,
+        name: '김입분',
+        day: '수',
+        startTime: '14:20',
+        endTime: '14:50',
+        isFocus: false,
+        note: '벽적골 8단지',
+        unassigned: false
+      });
+      list.push({
+        id: idCounter++,
+        name: '송정인',
+        day: '수',
+        startTime: '15:10',
+        endTime: '15:40',
+        isFocus: false,
+        note: '벽적골 8단지 (같은 단지 연계)',
+        unassigned: false
+      });
+
+      // 4) 목요일: 권희자 어르신 (요청하신 12:10 ~ 12:40 정확 반영)
+      // 권희자(12:10~12:40) -> 20분 이동 -> 손금천(13:00~14:00) 완벽 연계!
+      list.push({
+        id: idCounter++,
+        name: '권희자',
+        day: '목',
+        startTime: '12:10',
+        endTime: '12:40',
+        isFocus: false,
+        note: '신동래미안 (손금천 방문 전 연계)',
+        unassigned: false
+      });
+      // 목요일 오후 A지역 태장로 김말순 어르신 연계
+      list.push({
+        id: idCounter++,
+        name: '김말순',
+        day: '목',
+        startTime: '14:20',
+        endTime: '14:50',
+        isFocus: false,
+        note: '태장로 lg빌리지 201동',
+        unassigned: false
+      });
+
+      // 5) 월요일: 원래 금요일 예정이던 박재순 & 황명숙 어르신(C지역 망포1동) + 세흥빌라 202/203호
+      // 금요일 휴가로 인해 박재순, 황명숙 어르신을 월요일 오후로 안전하게 선배치
+      list.push({
+        id: idCounter++,
+        name: '박재순',
+        day: '월',
+        startTime: '14:20',
+        endTime: '14:50',
+        isFocus: false,
+        note: '영통로90번길 (금요일 휴가로 월요일 이동)',
+        unassigned: false
+      });
+      list.push({
+        id: idCounter++,
+        name: '황명숙',
+        day: '월',
+        startTime: '15:10',
+        endTime: '15:40',
+        isFocus: false,
+        note: '기선빌라 103호 (금요일 휴가로 월요일 이동)',
+        unassigned: false
+      });
+
+      // 김금옥 & 안정훈 어르신 (세흥빌라 나동 나란히 옆집 - 계단 한번으로 방문)
+      // 월요일 오전 또는 수요일 등으로 배치 (기본 월요일 11:30~12:20 배치)
+      list.push({
+        id: idCounter++,
+        name: '김금옥',
+        day: '화',
+        startTime: '11:40',
+        endTime: '12:10',
+        isFocus: false,
+        note: '세흥빌라 나-202호 (안정훈 어르신 바로 옆집)',
+        unassigned: false
+      });
+      list.push({
+        id: idCounter++,
+        name: '안정훈',
+        day: '화',
+        startTime: '12:20',
+        endTime: '12:50',
+        isFocus: false,
+        note: '세흥빌라 나-203호 (문 열면 옆집)',
+        unassigned: false
+      });
+
+      return list;
     }
 
-    function handleWelfareInputKey(e) {
-      if (e.key === 'Enter') {
-        addWelfareTask();
-      }
-    }
+    // -------------------------------------------------------------
+    // 3. 상태 관리 및 로컬 저장소 동기화
+    // -------------------------------------------------------------
+    let currentSchedule = [];
+    let holidayState = { '월': false, '화': false, '수': false, '목': false, '금': true }; // 기본 금요일 휴가
+    let currentTab = '전체';
 
-    function toggleWelfareTask(index) {
-      if (welfareTasks[index]) {
-        welfareTasks[index].completed = !welfareTasks[index].completed;
-        saveWelfareTasksToStorage();
-        renderWelfareTasks();
-      }
-    }
+    function loadState() {
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      const savedHolidays = localStorage.getItem(HOLIDAY_STORAGE_KEY);
 
-    function deleteWelfareTask(index) {
-      if (welfareTasks[index]) {
-        welfareTasks.splice(index, 1);
-        saveWelfareTasksToStorage();
-        renderWelfareTasks();
-        showToast('업무 항목이 삭제되었습니다.');
-      }
-    }
-
-    function saveWelfareTasksToStorage() {
-      try {
-        localStorage.setItem('care_welfare_tasks', JSON.stringify(welfareTasks));
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    function renderWeekdayTabs() {
-      const container = document.getElementById('weekday-tabs');
-      container.innerHTML = '';
-      const dayLabels = { 1: '월', 2: '화', 3: '수', 4: '목', 5: '금' };
-      const realTodayDay = new Date().getDay();
-
-      for (let i = 1; i <= 5; i++) {
-        const targetDate = currentWeekDays[i];
-        const isSelected = (i === selectedWeekday);
-        const isRealToday = (i === realTodayDay);
-
-        const tabBtn = document.createElement('button');
-        tabBtn.onclick = () => selectWeekday(i);
-        tabBtn.className = `flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all ${
-          isSelected 
-            ? 'bg-amber-500 text-white font-bold shadow-md shadow-amber-300 scale-[1.02]' 
-            : 'bg-slate-50 text-slate-600 hover:bg-amber-100/50'
-        }`;
-
-        tabBtn.innerHTML = `
-          <div class="flex items-center gap-1">
-            <span class="text-xs ${isSelected ? 'text-amber-100' : 'text-slate-400'}">${dayLabels[i]}</span>
-            ${isRealToday ? `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-rose-500'}"></span>` : ''}
-          </div>
-          <span class="text-sm font-extrabold mt-0.5">${targetDate.getDate()}</span>
-        `;
-        container.appendChild(tabBtn);
-      }
-    }
-
-    function selectWeekday(dayIdx) {
-      selectedWeekday = dayIdx;
-      renderWeekdayTabs();
-      renderScheduleForDay(dayIdx);
-    }
-
-    function goToToday() {
-      const today = new Date().getDay();
-      if (today >= 1 && today <= 5) {
-        selectWeekday(today);
+      if (savedData) {
+        try {
+          currentSchedule = JSON.parse(savedData);
+        } catch (e) {
+          currentSchedule = getDefaultSchedule();
+        }
       } else {
-        selectWeekday(1);
+        currentSchedule = getDefaultSchedule();
       }
-      showToast('오늘 요일 스케줄로 이동했습니다.');
+
+      if (savedHolidays) {
+        try {
+          holidayState = JSON.parse(savedHolidays);
+        } catch (e) {
+          holidayState = { '월': false, '화': false, '수': false, '목': false, '금': true };
+        }
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(currentSchedule));
+      localStorage.setItem(HOLIDAY_STORAGE_KEY, JSON.stringify(holidayState));
     }
 
     // -------------------------------------------------------------
-    // 5. 스케줄 리스트 렌더링
+    // 4. 휴가 처리 토글
     // -------------------------------------------------------------
-    function renderScheduleForDay(dayIdx) {
-      const schedule = WEEK_SCHEDULE[dayIdx];
-      const targetDate = currentWeekDays[dayIdx];
+    function toggleHoliday(day) {
+      holidayState[day] = !holidayState[day];
 
-      // 요일 헤더 카드 업데이트
-      const badgeDay = document.getElementById('badge-day-label');
-      const badgeDate = document.getElementById('badge-date-string');
-      const routeTitle = document.getElementById('day-route-title');
-      const countEl = document.getElementById('day-target-count');
-      const summaryCard = document.getElementById('day-summary-card');
+      // 휴가로 변경된 경우, 손금천 어르신(매일)을 제외한 해당 요일의 일반 방문 일정을 '대기함'으로 안전하게 이동
+      if (holidayState[day]) {
+        currentSchedule.forEach(item => {
+          if (item.day === day && !item.isFocus && !item.unassigned) {
+            item.unassigned = true;
+          }
+        });
+        showToast(`${day}요일 휴가 처리 완료! 해당 일정은 대기함으로 이동했습니다.`);
+      } else {
+        showToast(`${day}요일 정상 근무로 변경되었습니다.`);
+      }
 
-      badgeDay.textContent = schedule.dayName;
-      badgeDate.textContent = `${targetDate.getMonth() + 1}월 ${targetDate.getDate()}일`;
-      routeTitle.innerHTML = schedule.routeTitle;
-      
-      // 방문 인원수 계산 (break 제외)
-      const eldersCount = schedule.items.filter(it => !it.type).length;
-      countEl.textContent = `${eldersCount}명`;
+      saveState();
+      renderAll();
+    }
 
-      // 리스트 컨테이너
-      const listContainer = document.getElementById('schedule-list');
-      listContainer.innerHTML = '';
+    // -------------------------------------------------------------
+    // 5. 렌더링 엔진
+    // -------------------------------------------------------------
+    function renderAll() {
+      updateHolidayButtons();
+      renderScheduleGrid();
+      renderUnassignedList();
+    }
 
-      schedule.items.forEach(item => {
-        if (item.type === 'break') {
-          // 휴식 및 점심 카드
-          const breakEl = document.createElement('div');
-          breakEl.className = 'bg-amber-100/60 border border-dashed border-amber-300 rounded-2xl p-3.5 flex items-center justify-between text-amber-900';
-          breakEl.innerHTML = `
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-xl bg-amber-200/80 flex items-center justify-center text-amber-700">
-                <i class="fa-solid fa-mug-hot"></i>
-              </div>
-              <div>
-                <h4 class="font-bold text-sm text-slate-800">${item.name}</h4>
-                <p class="text-xs text-amber-800 font-medium">${item.location}</p>
-              </div>
-            </div>
-            <span class="text-xs font-bold bg-white/70 px-2.5 py-1 rounded-full text-amber-800 shadow-sm">${item.time}</span>
-          `;
-          listContainer.appendChild(breakEl);
+    function updateHolidayButtons() {
+      DAYS.forEach(day => {
+        const key = day === '월' ? 'mon' : day === '화' ? 'tue' : day === '수' ? 'wed' : day === '목' ? 'thu' : 'fri';
+        const btn = document.getElementById(`btn-holiday-${key}`);
+        if (!btn) return;
+
+        if (holidayState[day]) {
+          btn.className = 'py-2 rounded-xl text-xs font-bold border transition flex flex-col items-center justify-center gap-0.5 bg-rose-50 border-rose-300 text-rose-700 shadow-xs';
+          btn.innerHTML = `<span>${day}요일</span><span class="text-[10px] font-bold text-rose-600">🏖️ 휴가 중</span>`;
         } else {
-          // 어르신 방문 카드
-          const isExpanded = (expandedCardId === item.id);
-          const savedNote = memoryNotes[item.elderId] || '';
-          
-          const cardEl = document.createElement('div');
-          cardEl.id = `card-${item.id}`;
-          cardEl.className = `bg-white rounded-2xl border transition-all duration-200 shadow-sm overflow-hidden ${
-            isExpanded ? 'border-amber-400 ring-2 ring-amber-100 shadow-md' : 'border-slate-100 hover:border-amber-200'
-          }`;
-
-          cardEl.innerHTML = `
-            <!-- 카드 헤더 (터치 시 토글) -->
-            <div onclick="toggleCard('${item.id}')" class="p-4 cursor-pointer flex items-start justify-between gap-3 active:bg-amber-50/40">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 flex-wrap mb-1">
-                  <span class="text-xs font-bold px-2 py-0.5 rounded-full ${item.badgeColor || 'bg-amber-100 text-amber-800'}">
-                    ${item.tag}
-                  </span>
-                  <span class="text-xs font-bold text-slate-500">
-                    <i class="fa-regular fa-clock mr-1 text-slate-400"></i>${item.time}
-                  </span>
-                  ${savedNote ? `<span class="text-[11px] font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-note-sticky text-emerald-500"></i>전달사항 있음</span>` : ''}
-                </div>
-                
-                <h3 class="text-lg font-black text-slate-900 flex items-center gap-2">
-                  ${item.name}
-                  <span class="text-xs text-amber-600 font-normal">
-                    <i class="fa-solid fa-hand-pointer mr-0.5"></i>터치하여 케어내용 확인
-                  </span>
-                </h3>
-                
-                <p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                  <i class="fa-solid fa-location-dot text-rose-500"></i>
-                  ${item.location}
-                </p>
-              </div>
-
-              <button class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 mt-1 transition-transform ${isExpanded ? 'rotate-180 bg-amber-100 text-amber-700' : ''}">
-                <i class="fa-solid fa-chevron-down text-xs"></i>
-              </button>
-            </div>
-
-            <!-- 상세 확장 영역 (체크리스트 & 다음 방문 메모) -->
-            <div id="content-${item.id}" class="expand-content ${isExpanded ? 'block' : 'hidden'} border-t border-slate-100 bg-slate-50/60 p-4">
-              
-              <!-- 1. 이전 방문 시 적어둔 중요 전달사항 (있을 때 강조 노출) -->
-              ${savedNote ? `
-                <div class="mb-4 bg-emerald-50 border border-emerald-200 rounded-xl p-3 shadow-xs">
-                  <div class="flex items-center justify-between mb-1.5">
-                    <span class="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
-                      <i class="fa-solid fa-bell text-emerald-600"></i> 지난번 저장한 [다음에 꼭 해드릴 일]
-                    </span>
-                    <span class="text-[11px] text-emerald-600">체크 확인</span>
-                  </div>
-                  <div class="text-sm font-semibold text-slate-800 bg-white p-2.5 rounded-lg border border-emerald-100">
-                    ${escapeHtml(savedNote)}
-                  </div>
-                </div>
-              ` : ''}
-
-              <!-- 2. 오늘 방문 시 해드릴 기본 케어 목록 (체크박스) -->
-              <div class="mb-4">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                    <i class="fa-solid fa-list-check text-amber-500"></i> 오늘 해드릴 케어 목록
-                  </span>
-                  <span class="text-[11px] text-slate-400">완료 시 체크</span>
-                </div>
-
-                <div class="space-y-2">
-                  ${item.defaultChecks.map((task, idx) => {
-                    const checkKey = `${item.elderId}_task_${idx}`;
-                    const isChecked = !!memoryCheckedBoxes[checkKey];
-                    return `
-                      <label class="flex items-start gap-2.5 p-2 rounded-xl bg-white border border-slate-200/80 hover:border-amber-300 transition-colors cursor-pointer select-none">
-                        <input type="checkbox" 
-                               onchange="toggleTaskCheck('${checkKey}')"
-                               ${isChecked ? 'checked' : ''} 
-                               class="w-4 h-4 mt-0.5 rounded border-slate-300 text-amber-500 focus:ring-amber-400">
-                        <span class="text-xs font-medium ${isChecked ? 'line-through text-slate-400' : 'text-slate-700'} leading-relaxed">
-                          ${task}
-                        </span>
-                      </label>
-                    `;
-                  }).join('')}
-                </div>
-              </div>
-
-              <!-- 3. 방문 후: 다음에 해드릴 것 적는 칸 & 저장 버튼 -->
-              <div class="bg-white rounded-xl p-3 border border-slate-200/80 shadow-xs">
-                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1.5">
-                  <i class="fa-solid fa-pen-to-square text-rose-500"></i>
-                  방문 후 기록: 다음에 꼭 해드릴 것
-                </label>
-                <p class="text-[11px] text-slate-400 mb-2">
-                  어르신과 대화 중 필요한 요청, 다음 주 챙길 물품 등을 메모해두면 다음에 열었을 때 상단에 표시됩니다.
-                </p>
-                <div class="flex flex-col gap-2">
-                  <textarea id="note-input-${item.elderId}" 
-                            rows="2" 
-                            placeholder="예: 다음 방문 시 관절 파스 챙겨드리기, 둘째 아드님 통화 여부 여쭙기 등"
-                            class="w-full text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-400 text-slate-800 resize-none bg-slate-50/50">${savedNote}</textarea>
-                  <div class="flex justify-end">
-                    <button onclick="saveElderNote('${item.elderId}', '${item.id}')" 
-                            class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all">
-                      <i class="fa-solid fa-floppy-disk text-amber-400"></i>
-                      <span>저장하여 다음에 반영</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          `;
-
-          listContainer.appendChild(cardEl);
+          btn.className = 'py-2 rounded-xl text-xs font-bold border transition flex flex-col items-center justify-center gap-0.5 bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100';
+          btn.innerHTML = `<span>${day}요일</span><span class="text-[10px] text-slate-400 font-normal">정상 근무</span>`;
         }
       });
     }
 
+    function renderScheduleGrid() {
+      DAYS.forEach(day => {
+        const col = document.getElementById(`col-${day}`);
+        if (!col) return;
+
+        // 탭 필터링
+        if (currentTab !== '전체' && currentTab !== day) {
+          col.classList.add('hidden');
+          return;
+        } else {
+          col.classList.remove('hidden');
+        }
+
+        const isHoliday = holidayState[day];
+        // 해당 요일 일정 정렬
+        const items = currentSchedule
+          .filter(it => it.day === day && !it.unassigned)
+          .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+        let html = `
+          <div class="p-3 border-b border-slate-100 flex items-center justify-between ${isHoliday ? 'bg-rose-50/70' : 'bg-slate-50/70'}">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-extrabold ${isHoliday ? 'text-rose-700' : 'text-slate-900'}">${day}요일</span>
+              ${isHoliday ? '<span class="text-[10px] bg-rose-200/80 text-rose-800 font-black px-2 py-0.5 rounded-full">휴가</span>' : `<span class="text-[11px] font-bold text-slate-400">${items.length}곳 방문</span>`}
+            </div>
+            <button onclick="openAddModal('${day}')" class="text-xs text-blue-600 hover:text-blue-800 font-bold px-2 py-1 rounded-lg hover:bg-blue-50 transition flex items-center gap-1">
+              <i class="fa-solid fa-plus"></i> 추가
+            </button>
+          </div>
+          <div class="p-2 space-y-2 min-h-[160px]">
+        `;
+
+        if (isHoliday && items.length === 0) {
+          html += `
+            <div class="h-32 flex flex-col items-center justify-center text-center p-3 text-slate-400">
+              <i class="fa-solid fa-umbrella-beach text-rose-300 text-2xl mb-1"></i>
+              <span class="text-xs font-bold text-rose-400">연차 / 휴가일입니다</span>
+              <span class="text-[10px] text-slate-400 mt-0.5">편안하게 충전하세요 ☕</span>
+            </div>
+          `;
+        } else if (items.length === 0) {
+          html += `
+            <div class="h-32 flex flex-col items-center justify-center text-center p-3 text-slate-300">
+              <i class="fa-regular fa-calendar-xmark text-xl mb-1"></i>
+              <span class="text-xs font-semibold">배치된 일정이 없습니다</span>
+            </div>
+          `;
+        } else {
+          items.forEach((item, index) => {
+            const info = SENIOR_INFO[item.name] || { cluster: '일반', address: '', isFocus: false };
+            const isFocus = item.isFocus || item.name === '손금천';
+
+            // 직전 일정과의 이동 시간 간격 계산
+            let travelNotice = '';
+            if (index > 0) {
+              const prev = items[index - 1];
+              const diffMin = getMinuteDiff(prev.endTime, item.startTime);
+              if (diffMin >= 0 && diffMin <= 40) {
+                travelNotice = `<div class="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md my-1 font-semibold flex items-center gap-1"><i class="fa-solid fa-route"></i> 이동·휴식 여유: 약 ${diffMin}분</div>`;
+              }
+            }
+
+            html += `
+              ${travelNotice}
+              <div onclick="openEditModal(${item.id})" class="p-3 rounded-xl border transition-all duration-150 cursor-pointer active:scale-98 hover:shadow-md ${
+                isFocus
+                  ? 'bg-gradient-to-br from-amber-50 to-orange-50/80 border-amber-300 shadow-xs'
+                  : 'bg-white hover:bg-slate-50 border-slate-200'
+              }">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-[11px] font-extrabold ${isFocus ? 'text-amber-700' : 'text-blue-700'} flex items-center gap-1">
+                    <i class="fa-regular fa-clock"></i> ${item.startTime} ~ ${item.endTime}
+                  </span>
+                  ${isFocus ? '<span class="text-[9px] font-black bg-amber-500 text-white px-2 py-0.5 rounded-full shadow-xs">중점 1시간</span>' : '<span class="text-[9px] font-bold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">30분</span>'}
+                </div>
+                <div class="flex items-baseline justify-between">
+                  <h4 class="text-sm font-extrabold text-slate-900">${item.name} <span class="text-xs font-normal text-slate-500">어르신</span></h4>
+                  <span class="text-[10px] text-slate-400 font-medium">${info.cluster}</span>
+                </div>
+                <p class="text-[11px] text-slate-500 truncate mt-0.5"><i class="fa-solid fa-location-dot text-slate-400 text-[10px]"></i> ${info.address}</p>
+                ${item.note ? `<p class="text-[10px] text-slate-600 mt-1.5 bg-slate-100/80 rounded-lg p-1.5 font-medium leading-tight">${item.note}</p>` : ''}
+              </div>
+            `;
+          });
+        }
+
+        html += `</div>`;
+        col.innerHTML = html;
+      });
+    }
+
+    function renderUnassignedList() {
+      const section = document.getElementById('unassignedSection');
+      const container = document.getElementById('unassignedList');
+      const countEl = document.getElementById('unassignedCount');
+
+      const unassigned = currentSchedule.filter(it => it.unassigned);
+      countEl.textContent = unassigned.length;
+
+      if (unassigned.length === 0) {
+        section.classList.add('hidden');
+        return;
+      }
+
+      section.classList.remove('hidden');
+      container.innerHTML = '';
+
+      unassigned.forEach(item => {
+        const info = SENIOR_INFO[item.name] || { cluster: '일반' };
+        const badge = document.createElement('div');
+        badge.className = 'bg-white border border-amber-300 rounded-xl px-3 py-2 text-xs font-bold shadow-xs hover:border-blue-500 cursor-pointer flex items-center gap-2 active:scale-95 transition';
+        badge.innerHTML = `
+          <div>
+            <div class="text-slate-900 font-extrabold">${item.name} 어르신</div>
+            <div class="text-[10px] text-amber-700 font-normal">${info.cluster} | 대기 중</div>
+          </div>
+          <span class="text-blue-600 text-xs"><i class="fa-solid fa-calendar-plus"></i></span>
+        `;
+        badge.onclick = () => openEditModal(item.id);
+        container.appendChild(badge);
+      });
+    }
+
+    function getMinuteDiff(t1, t2) {
+      const [h1, m1] = t1.split(':').map(Number);
+      const [h2, m2] = t2.split(':').map(Number);
+      return (h2 * 60 + m2) - (h1 * 60 + m1);
+    }
+
     // -------------------------------------------------------------
-    // 6. 인터랙션 및 상태 저장 함수들
+    // 6. 일정 탭 변경
     // -------------------------------------------------------------
-    function toggleCard(cardId) {
-      if (expandedCardId === cardId) {
-        expandedCardId = null;
-      } else {
-        expandedCardId = cardId;
+    function switchDayTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.className = 'tab-btn flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition text-slate-600 hover:bg-slate-100';
+      });
+
+      const activeBtn = document.getElementById(`tab-${tab}`);
+      if (activeBtn) {
+        activeBtn.className = 'tab-btn flex-1 py-2 text-xs sm:text-sm font-bold rounded-xl transition bg-blue-600 text-white shadow-xs';
       }
-      renderScheduleForDay(selectedWeekday);
+      renderScheduleGrid();
     }
 
-    function toggleTaskCheck(checkKey) {
-      memoryCheckedBoxes[checkKey] = !memoryCheckedBoxes[checkKey];
-      // 다시 그려서 취소선 스타일 즉각 반영
-      renderScheduleForDay(selectedWeekday);
+    // -------------------------------------------------------------
+    // 7. 모달 편집 및 어르신 일정 조정 로직
+    // -------------------------------------------------------------
+    let currentEditItem = null;
+
+    function openEditModal(id) {
+      currentEditItem = currentSchedule.find(it => it.id === id);
+      if (!currentEditItem) return;
+
+      const info = SENIOR_INFO[currentEditItem.name] || { cluster: '일반', address: '' };
+
+      document.getElementById('editScheduleId').value = currentEditItem.id;
+      document.getElementById('modalSeniorName').textContent = `${currentEditItem.name} 어르신`;
+      document.getElementById('modalSeniorCluster').textContent = `${info.cluster} - ${info.address}`;
+      document.getElementById('editStartTime').value = currentEditItem.startTime;
+      document.getElementById('editEndTime').value = currentEditItem.endTime;
+      document.getElementById('editNote').value = currentEditItem.note || '';
+
+      selectModalDay(currentEditItem.day || '월');
+      document.getElementById('editModal').classList.remove('hidden');
     }
 
-    function saveElderNote(elderId, cardId) {
-      const textarea = document.getElementById(`note-input-${elderId}`);
-      if (!textarea) return;
+    function openAddModal(defaultDay = '월') {
+      // 새로운 방문 추가
+      const newId = Date.now();
+      const newItem = {
+        id: newId,
+        name: '신규 어르신',
+        day: defaultDay,
+        startTime: '14:20',
+        endTime: '14:50',
+        isFocus: false,
+        note: '30분 방문',
+        unassigned: false
+      };
+      currentSchedule.push(newItem);
+      openEditModal(newId);
+    }
 
-      const noteText = textarea.value.trim();
-      memoryNotes[elderId] = noteText;
-      // 브라우저 로컬스토리지에 저장하여 새로고침 시에도 유지
-      try {
-        localStorage.setItem('care_notes', JSON.stringify(memoryNotes));
-      } catch (e) {
-        console.error(e);
+    function selectModalDay(day) {
+      document.getElementById('editDay').value = day;
+      document.querySelectorAll('.modal-day-btn').forEach(btn => {
+        if (btn.dataset.day === day) {
+          btn.className = 'modal-day-btn py-2 text-xs font-black rounded-xl border border-blue-600 bg-blue-600 text-white shadow-xs';
+        } else {
+          btn.className = 'modal-day-btn py-2 text-xs font-bold rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100';
+        }
+      });
+    }
+
+    function saveScheduleItem(e) {
+      e.preventDefault();
+      if (!currentEditItem) return;
+
+      currentEditItem.day = document.getElementById('editDay').value;
+      currentEditItem.startTime = document.getElementById('editStartTime').value;
+      currentEditItem.endTime = document.getElementById('editEndTime').value;
+      currentEditItem.note = document.getElementById('editNote').value.trim();
+      currentEditItem.unassigned = false;
+
+      saveState();
+      closeEditModal();
+      renderAll();
+      showToast(`${currentEditItem.name} 어르신 일정이 저장되었습니다.`);
+    }
+
+    function moveToUnassigned() {
+      if (!currentEditItem) return;
+      currentEditItem.unassigned = true;
+      saveState();
+      closeEditModal();
+      renderAll();
+      showToast(`${currentEditItem.name} 어르신 일정을 대기함으로 이동했습니다.`);
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.add('hidden');
+      currentEditItem = null;
+    }
+
+    // -------------------------------------------------------------
+    // 8. 클립보드 텍스트 복사 & 알림
+    // -------------------------------------------------------------
+    function copyScheduleText() {
+      let text = `📅 [주간 어르신 방문 일정표]\n`;
+      text += `⭐ 손금천 어르신: 매일 13:00~14:00 (중점 관리)\n`;
+      text += `🏖️ 금요일: 연차/휴가 반영\n\n`;
+
+      DAYS.forEach(day => {
+        const isHol = holidayState[day];
+        text += `■ ${day}요일 ${isHol ? '(🏖️ 휴가)' : ''}\n`;
+        const items = currentSchedule
+          .filter(it => it.day === day && !it.unassigned)
+          .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+        if (items.length === 0) {
+          text += `  - 방문 일정 없음\n`;
+        } else {
+          items.forEach(it => {
+            text += `  • ${it.startTime}~${it.endTime} : ${it.name} 어르신 (${it.note || '방문'})\n`;
+          });
+        }
+        text += `\n`;
+      });
+
+      const unassigned = currentSchedule.filter(it => it.unassigned);
+      if (unassigned.length > 0) {
+        text += `■ 미배치 대기 어르신:\n`;
+        unassigned.forEach(it => {
+          text += `  - ${it.name} 어르신\n`;
+        });
       }
 
-      showToast('메모가 저장되었습니다! (모든 요일에 자동 연동 📝)');
-      renderScheduleForDay(selectedWeekday);
+      // 복사 실행
+      const dummy = document.createElement('textarea');
+      dummy.value = text;
+      document.body.appendChild(dummy);
+      dummy.select();
+      document.execCommand('copy');
+      document.body.removeChild(dummy);
+
+      showToast('주간 일정이 클립보드에 복사되었습니다! 카톡에 붙여넣으세요.');
     }
 
-    function toggleTaskCheck(checkKey) {
-      memoryCheckedBoxes[checkKey] = !memoryCheckedBoxes[checkKey];
-      try {
-        localStorage.setItem('care_checks', JSON.stringify(memoryCheckedBoxes));
-      } catch (e) {
-        console.error(e);
+    function resetToCustomDefault() {
+      if (confirm('이번 주 맞춤 기본 일정(금요일 휴가 및 권역 최적화)으로 초기화할까요?')) {
+        currentSchedule = getDefaultSchedule();
+        holidayState = { '월': false, '화': false, '수': false, '목': false, '금': true };
+        saveState();
+        renderAll();
+        showToast('금주 맞춤 기본 일정으로 재설정되었습니다.');
       }
-      // 다시 그려서 취소선 스타일 즉각 반영
-      renderScheduleForDay(selectedWeekday);
     }
 
-    function showToast(message) {
-      const toast = document.getElementById('toast-modal');
-      const textEl = document.getElementById('toast-message');
-      textEl.textContent = message;
-      
-      toast.classList.remove('opacity-0', 'pointer-events-none');
-      toast.classList.add('opacity-100');
-
+    function showToast(msg) {
+      const toast = document.getElementById('toastMessage');
+      const text = document.getElementById('toastText');
+      text.textContent = msg;
+      toast.classList.remove('opacity-0', 'translate-y-3');
+      toast.classList.add('opacity-100', 'translate-y-0');
       setTimeout(() => {
-        toast.classList.remove('opacity-100');
-        toast.classList.add('opacity-0', 'pointer-events-none');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-3');
       }, 2500);
     }
 
-    function escapeHtml(string) {
-      return String(string).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
-
-    // 앱 시작
+    // -------------------------------------------------------------
+    // 초기 시작
+    // -------------------------------------------------------------
     window.onload = function() {
-      initApp();
+      loadState();
+      renderAll();
     };
   </script>
 </body>
 </html>
+```
