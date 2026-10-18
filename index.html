@@ -2,7 +2,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>스마트 주간 일정표</title>
+  <title>주간 일정 매니저</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -14,21 +14,7 @@
     .neon-badge { box-shadow: 0 0 12px rgba(99, 102, 241, 0.25); }
   </style>
 </head>
-<body class="p-3 sm:p-5 pb-28 max-w-xl mx-auto">
-
-  <!-- 상단 상태 바 -->
-  <header class="glass-card rounded-2xl px-4 py-3 mb-3.5 flex items-center justify-between shadow-lg">
-    <div class="flex items-center gap-2.5">
-      <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]"></div>
-      <span class="text-xs font-semibold text-slate-300">근무 <b class="text-white font-extrabold ml-1">09:30 ~ 15:00</b></span>
-    </div>
-    <div class="flex items-center gap-2">
-      <button onclick="copyWeeklySchedule()" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-3 py-1.5 rounded-xl active:scale-95 transition flex items-center gap-1.5 shadow-md">
-        <i class="fa-solid fa-copy text-[11px]"></i>
-        <span>일정 복사</span>
-      </button>
-    </div>
-  </header>
+<body class="p-3 sm:p-5 pb-24 max-w-xl mx-auto">
 
   <!-- 이번 주 TO-DO (할 일 & 물품 전달 메모) -->
   <section class="glass-card rounded-2xl p-3.5 mb-3.5 shadow-md">
@@ -91,9 +77,9 @@
 
       <!-- 자주 쓰는 퀵 프리셋 버튼 -->
       <div class="grid grid-cols-3 gap-1 mb-4 text-[11px]">
+        <button onclick="applyTimePreset('10:00','10:30')" class="bg-slate-800 text-slate-300 p-1.5 rounded-lg border border-slate-700">10:00~10:30</button>
+        <button onclick="applyTimePreset('10:40','11:10')" class="bg-slate-800 text-slate-300 p-1.5 rounded-lg border border-slate-700">10:40~11:10</button>
         <button onclick="applyTimePreset('13:00','14:00')" class="bg-slate-800 text-slate-300 p-1.5 rounded-lg border border-slate-700">13:00(60분)</button>
-        <button onclick="applyTimePreset('14:20','14:50')" class="bg-slate-800 text-slate-300 p-1.5 rounded-lg border border-slate-700">14:20~14:50</button>
-        <button onclick="applyTimePreset('14:50','15:00')" class="bg-slate-800 text-slate-300 p-1.5 rounded-lg border border-slate-700">14:50~15:00</button>
       </div>
 
       <div class="flex gap-2">
@@ -110,42 +96,42 @@
       
       <div class="space-y-3 text-xs">
         <div>
-          <label class="block text-slate-400 mb-1">성함 선택 (선택 시 주소·시간 자동입력)</label>
+          <label class="block text-slate-400 mb-1">성함 선택</label>
           <select id="inputSenior" onchange="autoFillSenior(this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-bold">
             <option value="">직접 입력</option>
-            <option value="손금천|신동 202호|13:00|14:00|중점">손금천 [신동 202호] (13:00~14:00)</option>
-            <option value="권희자|신동래미안 201동|12:10|12:40|일반">권희자 [신동래미안 201동] (12:10~12:40)</option>
-            <option value="박향례|세흥 209호|14:20|14:50|일반">박향례 [세흥아파트 209호] (14:20~14:50)</option>
-            <option value="신길지|세흥 302호|14:50|15:00|일반">신길지 [세흥아파트 302호] (14:50~15:00)</option>
-            <option value="김입분|벽적골 8단지|14:20|14:50|일반">김입분 [벽적골 8단지] (14:20~14:50)</option>
-            <option value="송정인|벽적골 8단지|14:50|15:00|일반">송정인 [벽적골 8단지] (14:50~15:00)</option>
-            <option value="박재순|영통로90번길 4-12|14:15|14:45|일반">박재순 [영통로90번길 4-12] (30분)</option>
-            <option value="황명숙|기선빌라 103호|14:45|15:00|일반">황명숙 [기선빌라 103호] (15분)</option>
-            <option value="김금옥|세흥빌라 나-202호|14:20|14:50|일반">김금옥 [세흥빌라 나-202호] (30분)</option>
-            <option value="안정훈|세흥빌라 나-203호|14:50|15:00|일반">안정훈 [세흥빌라 나-203호] (10분)</option>
-            <option value="김말순|동수원자이 201동|14:20|14:50|일반">김말순 [동수원 자이2차 201동] (30분)</option>
+            <option value="손금천|신동 202호|13:00|14:00|중점">손금천 [신동 202호] (13:00~14:00 매일마지막)</option>
+            <option value="안정훈|세흥빌라 나-203호|10:00|10:30|일반">안정훈 [세흥빌라 나-203호] (월 10:00)</option>
+            <option value="김금옥|세흥빌라 나-202호|10:35|11:05|일반">김금옥 [세흥빌라 나-202호] (월 10:35)</option>
+            <option value="김말순|동수원자이 201동|11:30|12:00|일반">김말순 [동수원자이 201동] (월 11:30)</option>
+            <option value="박향례|세흥아파트 209호|10:00|10:30|일반">박향례 [세흥아파트 209호] (화 10:00)</option>
+            <option value="신길지|세흥아파트 302호|10:40|11:10|일반">신길지 [세흥아파트 302호] (화 10:40)</option>
+            <option value="김입분|벽적골 8단지|11:00|11:30|일반">김입분 [벽적골 8단지] (수 11:00)</option>
+            <option value="송정인|벽적골 8단지|11:40|12:10|일반">송정인 [벽적골 8단지] (수 11:40)</option>
+            <option value="권희자|신동래미안 201동|10:30|11:00|일반">권희자 [신동래미안 201동] (목 10:30)</option>
+            <option value="황명숙|기선빌라 103호|10:00|10:30|일반">황명숙 [기선빌라 103호] (금 10:00)</option>
+            <option value="박재순|영통로90번길 4-12|10:40|11:10|일반">박재순 [영통로90번길 4-12] (금 10:40)</option>
           </select>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="block text-slate-400 mb-1">성함 / 일정명</label>
-            <input type="text" id="inputName" placeholder="예: 손금천" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white">
+            <input type="text" id="inputName" placeholder="예: 안정훈" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white">
           </div>
           <div>
             <label class="block text-slate-400 mb-1">간단 주소 (동·호수)</label>
-            <input type="text" id="inputLoc" placeholder="예: 신동 202호" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white">
+            <input type="text" id="inputLoc" placeholder="예: 세흥빌라 나-203호" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white">
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="block text-slate-400 mb-1">시작</label>
-            <input type="time" id="inputStartTime" value="13:00" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white">
+            <input type="time" id="inputStartTime" value="10:00" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white">
           </div>
           <div>
             <label class="block text-slate-400 mb-1">종료</label>
-            <input type="time" id="inputEndTime" value="14:00" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white">
+            <input type="time" id="inputEndTime" value="10:30" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white">
           </div>
         </div>
 
@@ -182,7 +168,7 @@
         <div class="pt-2 border-t border-slate-800">
           <label class="block text-slate-300 font-bold mb-1.5">복지관 고정 회의 추가</label>
           <div class="flex flex-col gap-1.5">
-            <button onclick="quickAddMeeting('수요일 조회', '09:30', '10:30')" class="w-full text-left bg-slate-800 hover:bg-slate-700 p-2.5 rounded-xl text-slate-300 flex items-center justify-between border border-slate-700/60">
+            <button onclick="quickAddMeeting('수요일 주간 조회', '09:30', '10:30')" class="w-full text-left bg-slate-800 hover:bg-slate-700 p-2.5 rounded-xl text-slate-300 flex items-center justify-between border border-slate-700/60">
               <span>📢 수요일 주간 조회 (09:30~10:30)</span>
               <span class="text-[10px] text-emerald-400 font-bold">+추가</span>
             </button>
@@ -205,59 +191,60 @@
     let currentDay = '월';
     let editingEventId = null;
 
-    // 초기 데이터 (주소 태그와 간결한 성함 탑재)
-    let scheduleData = JSON.parse(localStorage.getItem('smartCareSchedule_v4')) || {
+    // 오전 중심 30분 방문 + 손금천 매일 13:00 마지막 고정 데이터셋
+    let scheduleData = JSON.parse(localStorage.getItem('smartCareSchedule_v5')) || {
       todos: [
         { id: 1, text: "달달떡집 영양떡 6분 전달 (김금옥, 손금천, 안정훈 등)", done: false },
         { id: 2, text: "환절기 건강수칙 생활교육 진행", done: false },
-        { id: 3, text: "수요일 09:30 센터 조회 참석", done: true }
+        { id: 3, text: "수요일 09:30 센터 조회 참석", done: false }
       ],
       days: {
         '월': {
           status: '정상근무',
           events: [
-            { id: 101, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지지원 (중점 60분)' },
-            { id: 102, name: '박재순', loc: '영통로90번길 4-12', start: '14:15', end: '14:45', service: '안부+말벗 (30분)' },
-            { id: 103, name: '황명숙', loc: '기선빌라 103호', start: '14:45', end: '15:00', service: '안부확인 (금욜휴가대체)' }
+            { id: 101, name: '안정훈', loc: '세흥빌라 나-203호', start: '10:00', end: '10:30', service: '안부+말벗 (30분)' },
+            { id: 102, name: '김금옥', loc: '세흥빌라 나-202호', start: '10:35', end: '11:05', service: '안부+물품전달 (30분)' },
+            { id: 103, name: '김말순', loc: '동수원자이 201동', start: '11:30', end: '12:00', service: '안부+말벗 (30분)' },
+            { id: 104, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지 (중점 60분/마지막)' }
           ]
         },
         '화': {
           status: '정상근무',
           events: [
-            { id: 201, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지지원 (중점 60분)' },
-            { id: 202, name: '박향례', loc: '세흥아파트 209호', start: '14:20', end: '14:50', service: '안부+말벗 (30분)' },
-            { id: 203, name: '신길지', loc: '세흥아파트 302호', start: '14:50', end: '15:00', service: '안부확인+환경점검' }
+            { id: 201, name: '박향례', loc: '세흥아파트 209호', start: '10:00', end: '10:30', service: '안부+말벗 (30분)' },
+            { id: 202, name: '신길지', loc: '세흥아파트 302호', start: '10:40', end: '11:10', service: '안부+환경점검 (30분)' },
+            { id: 203, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지 (중점 60분/마지막)' }
           ]
         },
         '수': {
           status: '정상근무',
           events: [
-            { id: 300, name: '수요일 조회', loc: '복지관 회의실', start: '09:30', end: '10:30', service: '영통종합사회복지관' },
-            { id: 301, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지지원 (중점 60분)' },
-            { id: 302, name: '김입분', loc: '벽적골 8단지', start: '14:20', end: '14:50', service: '안부+말벗 (30분)' },
-            { id: 303, name: '송정인', loc: '벽적골 8단지', start: '14:50', end: '15:00', service: '안부확인 (같은단지)' }
+            { id: 300, name: '수요일 주간 조회', loc: '복지관 회의실', start: '09:30', end: '10:30', service: '영통종합사회복지관' },
+            { id: 301, name: '김입분', loc: '벽적골 8단지', start: '11:00', end: '11:30', service: '안부+말벗 (30분)' },
+            { id: 302, name: '송정인', loc: '벽적골 8단지', start: '11:40', end: '12:10', service: '안부+말벗 (30분)' },
+            { id: 303, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지 (중점 60분/마지막)' }
           ]
         },
         '목': {
           status: '정상근무',
           events: [
-            { id: 400, name: '권희자', loc: '신동래미안 201동', start: '12:10', end: '12:40', service: '안부+말벗 (30분)' },
-            { id: 401, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지지원 (중점 60분)' },
-            { id: 402, name: '김금옥', loc: '세흥빌라 나-202호', start: '14:20', end: '14:50', service: '안부+물품전달 (30분)' },
-            { id: 403, name: '안정훈', loc: '세흥빌라 나-203호', start: '14:50', end: '15:00', service: '안부+물품전달 (바로옆집)' }
+            { id: 401, name: '권희자', loc: '신동래미안 201동', start: '10:30', end: '11:00', service: '안부+말벗 (30분)' },
+            { id: 402, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지 (중점 60분/마지막)' }
           ]
         },
         '금': {
-          status: '종일휴가',
+          status: '정상근무',
           events: [
-            { id: 501, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지지원 (중점 60분)' }
+            { id: 501, name: '황명숙', loc: '기선빌라 103호', start: '10:00', end: '10:30', service: '안부+말벗 (30분)' },
+            { id: 502, name: '박재순', loc: '영통로90번길 4-12', start: '10:40', end: '11:10', service: '안부+말벗 (30분)' },
+            { id: 503, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지 (중점 60분/마지막)' }
           ]
         }
       }
     };
 
     function saveData() {
-      localStorage.setItem('smartCareSchedule_v4', JSON.stringify(scheduleData));
+      localStorage.setItem('smartCareSchedule_v5', JSON.stringify(scheduleData));
       renderDayTabs();
       renderCurrentDay();
       renderTodos();
@@ -369,17 +356,17 @@
         row.className = 'p-3 flex items-center justify-between hover:bg-slate-800/30 transition';
         row.innerHTML = `
           <div class="flex-1 pr-2">
-            <!-- 1. 시간 (클릭하면 1초만에 빠른 시간 변경 창 열림) -->
+            <!-- 1. 시간 버튼 (터치 시 1초 퀵 수정) -->
             <div class="flex items-center gap-2 mb-1.5">
               <button onclick="openQuickTime(${ev.id})" class="text-xs font-black neon-green bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded-lg hover:bg-emerald-900/50 flex items-center gap-1 active:scale-95 transition">
                 <span>${ev.start} ~ ${ev.end}</span>
                 <i class="fa-solid fa-pen text-[9px] text-emerald-400/70"></i>
               </button>
-              ${isJungjum ? '<span class="text-[10px] bg-emerald-500 text-slate-950 px-1.5 py-0.2 rounded font-black">중점 60분</span>' : ''}
-              ${isMeeting ? '<span class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.2 rounded font-black">복지관 회의</span>' : ''}
+              ${isJungjum ? '<span class="text-[10px] bg-emerald-500 text-slate-950 px-1.5 py-0.2 rounded font-black">중점 60분 (마지막)</span>' : ''}
+              ${isMeeting ? '<span class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.2 rounded font-black">복지관</span>' : ''}
             </div>
 
-            <!-- 2. 성함 + 간단 주소 (어르신 글자 완전 삭제) -->
+            <!-- 2. 성함 + 간단 주소 태그 -->
             <div class="flex items-center gap-2 mb-1">
               <span class="text-sm font-black text-white">${ev.name}</span>
               ${ev.loc ? `<span class="text-[11px] font-semibold text-cyan-300 bg-cyan-950/60 border border-cyan-800/50 px-1.5 py-0.2 rounded">${ev.loc}</span>` : ''}
@@ -400,7 +387,7 @@
       });
     }
 
-    // --- 1초 퀵 시간 변경 모달 열기 ---
+    // --- 1초 퀵 시간 변경 모달 ---
     function openQuickTime(id) {
       const dayData = scheduleData.days[currentDay];
       const ev = dayData.events.find(e => e.id === id);
@@ -444,8 +431,8 @@
       document.getElementById('inputSenior').value = '';
       document.getElementById('inputName').value = '';
       document.getElementById('inputLoc').value = '';
-      document.getElementById('inputStartTime').value = '14:20';
-      document.getElementById('inputEndTime').value = '14:50';
+      document.getElementById('inputStartTime').value = '10:00';
+      document.getElementById('inputEndTime').value = '10:30';
       document.getElementById('inputService').value = '안부+말벗';
       document.getElementById('eventModal').classList.remove('hidden');
       document.getElementById('eventModal').classList.add('flex');
@@ -463,12 +450,12 @@
       document.getElementById('inputLoc').value = loc;
       document.getElementById('inputStartTime').value = start;
       document.getElementById('inputEndTime').value = end;
-      document.getElementById('inputService').value = (type === '중점') ? '신체·가사·인지지원 (중점 60분)' : '안부+말벗 (30분)';
+      document.getElementById('inputService').value = (type === '중점') ? '신체·가사·인지 (중점 60분)' : '안부+말벗 (30분)';
     }
 
     function saveEvent() {
       let name = document.getElementById('inputName').value.trim();
-      name = name.replace(/어르신/g, '').trim(); // '어르신' 글자 무조건 제거
+      name = name.replace(/어르신/g, '').trim();
       const loc = document.getElementById('inputLoc').value.trim();
       const start = document.getElementById('inputStartTime').value;
       const end = document.getElementById('inputEndTime').value;
@@ -540,35 +527,6 @@
       });
       saveData();
       closeConfigModal();
-    }
-
-    // --- 텍스트 복사 ---
-    function copyWeeklySchedule() {
-      let text = `[주간 근무 일정표 (09:30~15:00)]\n\n`;
-      text += `📌 [이번 주 전달사항 / 과제]\n`;
-      scheduleData.todos.forEach(t => {
-        text += `${t.done ? '✅' : '▫️'} ${t.text}\n`;
-      });
-      text += `\n`;
-
-      DAYS.forEach(day => {
-        const d = scheduleData.days[day];
-        text += `🗓️ ${day}요일 (${d.status})\n`;
-        if (d.events.length === 0) {
-          text += `  - 일정 없음\n`;
-        } else {
-          d.events.forEach(e => {
-            const clean = e.name.replace(/어르신/g, '').trim();
-            const locText = e.loc ? ` [${e.loc}]` : '';
-            text += `  • ${e.start}~${e.end} | ${clean}${locText} (${e.service})\n`;
-          });
-        }
-        text += `\n`;
-      });
-
-      navigator.clipboard.writeText(text).then(() => {
-        alert('주간 일정이 깔끔하게 복사되었습니다!\n카톡이나 메모장에 붙여넣으세요.');
-      });
     }
 
     // 시작
