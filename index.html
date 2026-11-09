@@ -1,538 +1,447 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>주간 일정 매니저</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>포근한 초단기 집중 타이머</title>
+  
+  <!-- Mobile & PWA App Settings -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="초단기타이머">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#FF6B57">
+
+  <!-- Funny, Bright & Super Cute Goofy Tomato Timer Character Icon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='bgSun' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23FFE566'/%3E%3Cstop offset='100%25' stop-color='%23FFB703'/%3E%3C/linearGradient%3E%3ClinearGradient id='tomatoGrad' x1='20%25' y1='0%25' x2='80%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23FF755B'/%3E%3Cstop offset='60%25' stop-color='%23FF432A'/%3E%3Cstop offset='100%25' stop-color='%23E0220B'/%3E%3C/linearGradient%3E%3Cfilter id='softShadow' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeDropShadow dx='0' dy='14' stdDeviation='18' flood-color='%23C0392B' flood-opacity='0.3'/%3E%3C/filter%3E%3C/defs%3E%3C!-- Bright sunny rounded app background --%3E%3Crect width='512' height='512' rx='128' fill='url(%23bgSun)'/%3E%3C!-- Funny Top Timer Winder / Stem --%3E%3Cpath d='M236 68 h40 v34 h-40 z' fill='%235A3825' rx='8'/%3E%3Cellipse cx='256' cy='66' rx='36' ry='12' fill='%23804E30'/%3E%3C!-- Sprouting cute leafy star --%3E%3Cpath d='M256 96 C290 80 340 70 334 104 C314 116 276 112 256 116 C236 112 198 116 178 104 C172 70 222 80 256 96 Z' fill='%2363D471'/%3E%3Cpath d='M256 96 C270 120 286 142 300 132 C280 120 264 112 256 102 C248 112 232 120 212 132 C226 142 242 120 256 96 Z' fill='%234BB559'/%3E%3C!-- Main Tomato Timer Body with 3D Pop --%3E%3Ccircle cx='256' cy='286' r='164' fill='url(%23tomatoGrad)' filter='url(%23softShadow)'/%3E%3C!-- Top specular highlight --%3E%3Cellipse cx='210' cy='175' rx='60' ry='24' fill='%23FFF' opacity='0.35' transform='rotate(-20 210 175)'/%3E%3C!-- Big Goofy Eyes (Left eye bigger with silly shine) --%3E%3Ccircle cx='195' cy='245' r='38' fill='%23FFF'/%3E%3Ccircle cx='198' cy='248' r='20' fill='%23222'/%3E%3Ccircle cx='188' cy='238' r='8' fill='%23FFF'/%3E%3Ccircle cx='205' cy='254' r='4' fill='%23FFF'/%3E%3C!-- Right eye slightly smaller and derpy --%3E%3Ccircle cx='312' cy='250' r='30' fill='%23FFF'/%3E%3Ccircle cx='306' cy='252' r='16' fill='%23222'/%3E%3Ccircle cx='300' cy='244' r='6' fill='%23FFF'/%3E%3Ccircle cx='312' cy='256' r='3' fill='%23FFF'/%3E%3C!-- Wobbly Funny Eyebrows --%3E%3Cpath d='M168 200 Q196 182 222 196' stroke='%235A1208' stroke-width='7' stroke-linecap='round' fill='none'/%3E%3Cpath d='M295 198 Q320 212 338 198' stroke='%235A1208' stroke-width='7' stroke-linecap='round' fill='none'/%3E%3C!-- Rosy Cute Glowing Cheeks --%3E%3Cellipse cx='145' cy='295' rx='22' ry='14' fill='%23FF2A6D' opacity='0.7'/%3E%3Cellipse cx='365' cy='298' rx='22' ry='14' fill='%23FF2A6D' opacity='0.7'/%3E%3C!-- Wide Open Laughing Mouth with Tongue & Little Buck Tooth --%3E%3Cpath d='M205 292 C205 370 307 370 307 292 Z' fill='%23700700'/%3E%3Cpath d='M228 322 C236 312 276 312 284 322 C286 352 226 352 228 322 Z' fill='%23FF7597'/%3E%3Crect x='246' y='292' width='20' height='16' rx='4' fill='%23FFF'/%3E%3C!-- Timer tick mark dots around bottom belly --%3E%3Ccircle cx='200' cy='408' r='6' fill='%23FFE566' opacity='0.9'/%3E%3Ccircle cx='256' cy='420' r='7' fill='%23FFF'/%3E%3Ccircle cx='312' cy='408' r='6' fill='%23FFE566' opacity='0.9'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='bgSun' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23FFE566'/%3E%3Cstop offset='100%25' stop-color='%23FFB703'/%3E%3C/linearGradient%3E%3ClinearGradient id='tomatoGrad' x1='20%25' y1='0%25' x2='80%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23FF755B'/%3E%3Cstop offset='60%25' stop-color='%23FF432A'/%3E%3Cstop offset='100%25' stop-color='%23E0220B'/%3E%3C/linearGradient%3E%3Cfilter id='softShadow' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeDropShadow dx='0' dy='14' stdDeviation='18' flood-color='%23C0392B' flood-opacity='0.3'/%3E%3C/filter%3E%3C/defs%3E%3C!-- Bright sunny rounded app background --%3E%3Crect width='512' height='512' rx='128' fill='url(%23bgSun)'/%3E%3C!-- Funny Top Timer Winder / Stem --%3E%3Cpath d='M236 68 h40 v34 h-40 z' fill='%235A3825' rx='8'/%3E%3Cellipse cx='256' cy='66' rx='36' ry='12' fill='%23804E30'/%3E%3C!-- Sprouting cute leafy star --%3E%3Cpath d='M256 96 C290 80 340 70 334 104 C314 116 276 112 256 116 C236 112 198 116 178 104 C172 70 222 80 256 96 Z' fill='%2363D471'/%3E%3Cpath d='M256 96 C270 120 286 142 300 132 C280 120 264 112 256 102 C248 112 232 120 212 132 C226 142 242 120 256 96 Z' fill='%234BB559'/%3E%3C!-- Main Tomato Timer Body with 3D Pop --%3E%3Ccircle cx='256' cy='286' r='164' fill='url(%23tomatoGrad)' filter='url(%23softShadow)'/%3E%3C!-- Top specular highlight --%3E%3Cellipse cx='210' cy='175' rx='60' ry='24' fill='%23FFF' opacity='0.35' transform='rotate(-20 210 175)'/%3E%3C!-- Big Goofy Eyes (Left eye bigger with silly shine) --%3E%3Ccircle cx='195' cy='245' r='38' fill='%23FFF'/%3E%3Ccircle cx='198' cy='248' r='20' fill='%23222'/%3E%3Ccircle cx='188' cy='238' r='8' fill='%23FFF'/%3E%3Ccircle cx='205' cy='254' r='4' fill='%23FFF'/%3E%3C!-- Right eye slightly smaller and derpy --%3E%3Ccircle cx='312' cy='250' r='30' fill='%23FFF'/%3E%3Ccircle cx='306' cy='252' r='16' fill='%23222'/%3E%3Ccircle cx='300' cy='244' r='6' fill='%23FFF'/%3E%3Ccircle cx='312' cy='256' r='3' fill='%23FFF'/%3E%3C!-- Wobbly Funny Eyebrows --%3E%3Cpath d='M168 200 Q196 182 222 196' stroke='%235A1208' stroke-width='7' stroke-linecap='round' fill='none'/%3E%3Cpath d='M295 198 Q320 212 338 198' stroke='%235A1208' stroke-width='7' stroke-linecap='round' fill='none'/%3E%3C!-- Rosy Cute Glowing Cheeks --%3E%3Cellipse cx='145' cy='295' rx='22' ry='14' fill='%23FF2A6D' opacity='0.7'/%3E%3Cellipse cx='365' cy='298' rx='22' ry='14' fill='%23FF2A6D' opacity='0.7'/%3E%3C!-- Wide Open Laughing Mouth with Tongue & Little Buck Tooth --%3E%3Cpath d='M205 292 C205 370 307 370 307 292 Z' fill='%23700700'/%3E%3Cpath d='M228 322 C236 312 276 312 284 322 C286 352 226 352 228 322 Z' fill='%23FF7597'/%3E%3Crect x='246' y='292' width='20' height='16' rx='4' fill='%23FFF'/%3E%3C!-- Timer tick mark dots around bottom belly --%3E%3Ccircle cx='200' cy='408' r='6' fill='%23FFE566' opacity='0.9'/%3E%3Ccircle cx='256' cy='420' r='7' fill='%23FFF'/%3E%3Ccircle cx='312' cy='408' r='6' fill='%23FFE566' opacity='0.9'/%3E%3C/svg%3E">
+
+  <!-- Google Fonts & Tailwind CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;900&display=swap');
-    * { font-family: 'Pretendard', -apple-system, sans-serif; box-sizing: border-box; }
-    body { background-color: #080d1a; color: #e2e8f0; touch-action: manipulation; }
-    .glass-card { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
-    .neon-green { color: #34d399; text-shadow: 0 0 10px rgba(52, 211, 153, 0.3); }
-    .neon-badge { box-shadow: 0 0 12px rgba(99, 102, 241, 0.25); }
-  </style>
-</head>
-<body class="p-3 sm:p-5 pb-24 max-w-xl mx-auto">
-
-  <!-- 이번 주 TO-DO (할 일 & 물품 전달 메모) -->
-  <section class="glass-card rounded-2xl p-3.5 mb-3.5 shadow-md">
-    <div class="flex items-center justify-between mb-2">
-      <span class="text-xs font-extrabold text-amber-400 flex items-center gap-1.5 tracking-tight">
-        <i class="fa-solid fa-gift text-amber-400"></i> 이번 주 전달사항 & 과제
-      </span>
-      <button onclick="addWeeklyTodo()" class="text-[11px] font-bold bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 px-2 py-0.5 rounded-lg border border-amber-500/30 active:scale-95 transition">
-        + 추가
-      </button>
-    </div>
-    <div id="weeklyTodoList" class="space-y-1.5 text-xs"></div>
-  </section>
-
-  <!-- 요일 탭 선택기 -->
-  <div class="flex gap-1.5 overflow-x-auto pb-1 mb-3 scrollbar-none" id="dayTabsContainer"></div>
-
-  <!-- 휴가/알림 배너 -->
-  <div id="dayNoticeBanner" class="hidden mb-3 p-2.5 rounded-xl text-xs font-bold flex items-center justify-between border"></div>
-
-  <!-- 일정 리스트 메인 카드 -->
-  <main class="glass-card rounded-3xl overflow-hidden shadow-2xl border border-slate-800/80">
-    <div class="p-3.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <h2 id="currentDayTitle" class="text-sm font-black text-white">월요일 일정</h2>
-        <span id="currentDayCount" class="text-[11px] text-slate-400 font-medium">총 0건</span>
-      </div>
-      <div class="flex gap-1.5">
-        <button onclick="openAddEventModal()" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-xl active:scale-95 transition flex items-center gap-1">
-          <i class="fa-solid fa-plus text-[10px]"></i> 추가
-        </button>
-        <button onclick="openDayConfigModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-2.5 py-1.5 rounded-xl border border-slate-700 active:scale-95 transition">
-          ⚙️ 회의/휴가
-        </button>
-      </div>
-    </div>
-
-    <!-- 일정 리스트 -->
-    <div id="scheduleTableBody" class="divide-y divide-slate-800/60"></div>
-  </main>
-
-  <!-- 빠른 시간 변경 모달 (1초 퀵 수정) -->
-  <div id="timeModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="glass-card bg-[#0f172a] border border-slate-700 rounded-3xl p-5 max-w-xs w-full shadow-2xl">
-      <h3 class="text-sm font-black text-white mb-1 flex items-center gap-2">
-        <i class="fa-regular fa-clock text-emerald-400"></i> 시간 간단 변경
-      </h3>
-      <p id="timeModalTargetName" class="text-xs text-slate-400 mb-3 font-semibold"></p>
-      
-      <div class="grid grid-cols-2 gap-2 mb-4 text-xs">
-        <div>
-          <label class="block text-slate-400 mb-1">시작</label>
-          <input type="time" id="quickStart" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-bold">
-        </div>
-        <div>
-          <label class="block text-slate-400 mb-1">종료</label>
-          <input type="time" id="quickEnd" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-bold">
-        </div>
-      </div>
-
-      <!-- 자주 쓰는 퀵 프리셋 버튼 -->
-      <div class="grid grid-cols-3 gap-1 mb-4 text-[11px]">
-        <button onclick="applyTimePreset('10:00','10:30')" class="bg-slate-800 text-slate-300 p-1.5 rounded-lg border border-slate-700">10:00~10:30</button>
-        <button onclick="applyTimePreset('10:40','11:10')" class="bg-slate-800 text-slate-300 p-1.5 rounded-lg border border-slate-700">10:40~11:10</button>
-        <button onclick="applyTimePreset('13:00','14:00')" class="bg-slate-800 text-slate-300 p-1.5 rounded-lg border border-slate-700">13:00(60분)</button>
-      </div>
-
-      <div class="flex gap-2">
-        <button onclick="closeTimeModal()" class="flex-1 bg-slate-800 text-slate-300 font-bold py-2 rounded-xl border border-slate-700 text-xs">취소</button>
-        <button onclick="saveQuickTime()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">변경 적용</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 일정 추가 모달 -->
-  <div id="eventModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="glass-card bg-[#0f172a] border border-slate-700 rounded-3xl p-5 max-w-sm w-full shadow-2xl">
-      <h3 class="text-sm font-black text-white mb-3" id="modalTitle">일정 추가</h3>
-      
-      <div class="space-y-3 text-xs">
-        <div>
-          <label class="block text-slate-400 mb-1">성함 선택</label>
-          <select id="inputSenior" onchange="autoFillSenior(this.value)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white font-bold">
-            <option value="">직접 입력</option>
-            <option value="손금천|신동 202호|13:00|14:00|중점">손금천 [신동 202호] (13:00~14:00 매일마지막)</option>
-            <option value="안정훈|세흥빌라 나-203호|10:00|10:30|일반">안정훈 [세흥빌라 나-203호] (월 10:00)</option>
-            <option value="김금옥|세흥빌라 나-202호|10:35|11:05|일반">김금옥 [세흥빌라 나-202호] (월 10:35)</option>
-            <option value="김말순|동수원자이 201동|11:30|12:00|일반">김말순 [동수원자이 201동] (월 11:30)</option>
-            <option value="박향례|세흥아파트 209호|10:00|10:30|일반">박향례 [세흥아파트 209호] (화 10:00)</option>
-            <option value="신길지|세흥아파트 302호|10:40|11:10|일반">신길지 [세흥아파트 302호] (화 10:40)</option>
-            <option value="김입분|벽적골 8단지|11:00|11:30|일반">김입분 [벽적골 8단지] (수 11:00)</option>
-            <option value="송정인|벽적골 8단지|11:40|12:10|일반">송정인 [벽적골 8단지] (수 11:40)</option>
-            <option value="권희자|신동래미안 201동|10:30|11:00|일반">권희자 [신동래미안 201동] (목 10:30)</option>
-            <option value="황명숙|기선빌라 103호|10:00|10:30|일반">황명숙 [기선빌라 103호] (금 10:00)</option>
-            <option value="박재순|영통로90번길 4-12|10:40|11:10|일반">박재순 [영통로90번길 4-12] (금 10:40)</option>
-          </select>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-slate-400 mb-1">성함 / 일정명</label>
-            <input type="text" id="inputName" placeholder="예: 안정훈" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white">
-          </div>
-          <div>
-            <label class="block text-slate-400 mb-1">간단 주소 (동·호수)</label>
-            <input type="text" id="inputLoc" placeholder="예: 세흥빌라 나-203호" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-slate-400 mb-1">시작</label>
-            <input type="time" id="inputStartTime" value="10:00" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white">
-          </div>
-          <div>
-            <label class="block text-slate-400 mb-1">종료</label>
-            <input type="time" id="inputEndTime" value="10:30" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white">
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-slate-400 mb-1">서비스 내용 / 전달사항</label>
-          <input type="text" id="inputService" placeholder="예: 안부+말벗 / 영양떡 전달" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white">
-        </div>
-      </div>
-
-      <div class="flex gap-2 mt-4">
-        <button onclick="closeModal()" class="flex-1 bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl border border-slate-700">취소</button>
-        <button onclick="saveEvent()" class="flex-1 bg-emerald-600 text-white font-bold py-2.5 rounded-xl">저장</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 회의/휴가 설정 모달 -->
-  <div id="configModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="glass-card bg-[#0f172a] border border-slate-700 rounded-3xl p-5 max-w-sm w-full shadow-2xl">
-      <h3 class="text-sm font-black text-white mb-2" id="configDayTitle">요일 회의 / 휴가 설정</h3>
-      <p class="text-xs text-slate-400 mb-3">근무 형태와 고정 회의를 간편하게 설정합니다.</p>
-
-      <div class="space-y-3 text-xs">
-        <div>
-          <label class="block text-slate-300 font-bold mb-1.5">근무 / 휴가 상태</label>
-          <div class="grid grid-cols-2 gap-1.5" id="vacationTypeGroup">
-            <button onclick="selectVacationType('정상근무')" class="v-btn py-2 px-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-200 font-bold text-center">정상근무</button>
-            <button onclick="selectVacationType('종일휴가')" class="v-btn py-2 px-2.5 rounded-xl border border-rose-900 bg-rose-950/60 text-rose-300 font-bold text-center">종일 휴가</button>
-            <button onclick="selectVacationType('오전휴가')" class="v-btn py-2 px-2.5 rounded-xl border border-amber-900 bg-amber-950/60 text-amber-300 font-bold text-center">오전 반차</button>
-            <button onclick="selectVacationType('오후휴가')" class="v-btn py-2 px-2.5 rounded-xl border border-amber-900 bg-amber-950/60 text-amber-300 font-bold text-center">오후 반차</button>
-          </div>
-        </div>
-
-        <div class="pt-2 border-t border-slate-800">
-          <label class="block text-slate-300 font-bold mb-1.5">복지관 고정 회의 추가</label>
-          <div class="flex flex-col gap-1.5">
-            <button onclick="quickAddMeeting('수요일 주간 조회', '09:30', '10:30')" class="w-full text-left bg-slate-800 hover:bg-slate-700 p-2.5 rounded-xl text-slate-300 flex items-center justify-between border border-slate-700/60">
-              <span>📢 수요일 주간 조회 (09:30~10:30)</span>
-              <span class="text-[10px] text-emerald-400 font-bold">+추가</span>
-            </button>
-            <button onclick="quickAddMeeting('월례회의', '09:30', '11:00')" class="w-full text-left bg-slate-800 hover:bg-slate-700 p-2.5 rounded-xl text-slate-300 flex items-center justify-between border border-slate-700/60">
-              <span>🏛️ 첫째 주 월례회의 (09:30~11:00)</span>
-              <span class="text-[10px] text-emerald-400 font-bold">+추가</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex gap-2 mt-4">
-        <button onclick="closeConfigModal()" class="w-full bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl border border-slate-700 text-xs">닫기</button>
-      </div>
-    </div>
-  </div>
+  <!-- Canvas Confetti & Tone.js for soft sound effects -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
 
   <script>
-    const DAYS = ['월', '화', '수', '목', '금'];
-    let currentDay = '월';
-    let editingEventId = null;
-
-    // 오전 중심 30분 방문 + 손금천 매일 13:00 마지막 고정 데이터셋
-    let scheduleData = JSON.parse(localStorage.getItem('smartCareSchedule_v5')) || {
-      todos: [
-        { id: 1, text: "달달떡집 영양떡 6분 전달 (김금옥, 손금천, 안정훈 등)", done: false },
-        { id: 2, text: "환절기 건강수칙 생활교육 진행", done: false },
-        { id: 3, text: "수요일 09:30 센터 조회 참석", done: false }
-      ],
-      days: {
-        '월': {
-          status: '정상근무',
-          events: [
-            { id: 101, name: '안정훈', loc: '세흥빌라 나-203호', start: '10:00', end: '10:30', service: '안부+말벗 (30분)' },
-            { id: 102, name: '김금옥', loc: '세흥빌라 나-202호', start: '10:35', end: '11:05', service: '안부+물품전달 (30분)' },
-            { id: 103, name: '김말순', loc: '동수원자이 201동', start: '11:30', end: '12:00', service: '안부+말벗 (30분)' },
-            { id: 104, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지 (중점 60분/마지막)' }
-          ]
-        },
-        '화': {
-          status: '정상근무',
-          events: [
-            { id: 201, name: '박향례', loc: '세흥아파트 209호', start: '10:00', end: '10:30', service: '안부+말벗 (30분)' },
-            { id: 202, name: '신길지', loc: '세흥아파트 302호', start: '10:40', end: '11:10', service: '안부+환경점검 (30분)' },
-            { id: 203, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지 (중점 60분/마지막)' }
-          ]
-        },
-        '수': {
-          status: '정상근무',
-          events: [
-            { id: 300, name: '수요일 주간 조회', loc: '복지관 회의실', start: '09:30', end: '10:30', service: '영통종합사회복지관' },
-            { id: 301, name: '김입분', loc: '벽적골 8단지', start: '11:00', end: '11:30', service: '안부+말벗 (30분)' },
-            { id: 302, name: '송정인', loc: '벽적골 8단지', start: '11:40', end: '12:10', service: '안부+말벗 (30분)' },
-            { id: 303, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지 (중점 60분/마지막)' }
-          ]
-        },
-        '목': {
-          status: '정상근무',
-          events: [
-            { id: 401, name: '권희자', loc: '신동래미안 201동', start: '10:30', end: '11:00', service: '안부+말벗 (30분)' },
-            { id: 402, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지 (중점 60분/마지막)' }
-          ]
-        },
-        '금': {
-          status: '정상근무',
-          events: [
-            { id: 501, name: '황명숙', loc: '기선빌라 103호', start: '10:00', end: '10:30', service: '안부+말벗 (30분)' },
-            { id: 502, name: '박재순', loc: '영통로90번길 4-12', start: '10:40', end: '11:10', service: '안부+말벗 (30분)' },
-            { id: 503, name: '손금천', loc: '신동 202호', start: '13:00', end: '14:00', service: '신체·가사·인지 (중점 60분/마지막)' }
-          ]
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard', 'sans-serif'],
+          },
+          colors: {
+            cozy: {
+              cream: '#FFFDF9',
+              card: '#FFF8F0',
+              peach: '#FFE8D6',
+              coral: '#F7A389',
+              coralHover: '#E89076',
+              mint: '#E2F0D9',
+              sage: '#8BA888',
+              brown: '#4A3B32',
+              muted: '#8C7A6B'
+            }
+          },
+          keyframes: {
+            gentlePulse: {
+              '0%, 100%': { transform: 'scale(1)' },
+              '50%': { transform: 'scale(1.03)' },
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-6px)' }
+            }
+          },
+          animation: {
+            'gentle-pulse': 'gentlePulse 2s infinite ease-in-out',
+            'float': 'float 3s infinite ease-in-out',
+          }
         }
       }
-    };
-
-    function saveData() {
-      localStorage.setItem('smartCareSchedule_v5', JSON.stringify(scheduleData));
-      renderDayTabs();
-      renderCurrentDay();
-      renderTodos();
     }
-
-    // --- TO-DO 렌더링 ---
-    function renderTodos() {
-      const container = document.getElementById('weeklyTodoList');
-      container.innerHTML = '';
-      scheduleData.todos.forEach((todo, idx) => {
-        const item = document.createElement('div');
-        item.className = 'flex items-center justify-between bg-slate-900/60 px-3 py-1.5 rounded-xl border border-slate-800/80';
-        item.innerHTML = `
-          <div class="flex items-center gap-2 flex-1 cursor-pointer" onclick="toggleTodo(${idx})">
-            <i class="fa-regular ${todo.done ? 'fa-square-check text-emerald-400' : 'fa-square text-slate-500'} text-sm"></i>
-            <span class="${todo.done ? 'line-through text-slate-500' : 'text-slate-200 font-medium'}">${todo.text}</span>
-          </div>
-          <button onclick="deleteTodo(${idx})" class="text-slate-500 hover:text-rose-400 px-1"><i class="fa-solid fa-xmark text-[11px]"></i></button>
-        `;
-        container.appendChild(item);
-      });
+  </script>
+  <style>
+    /* Custom SVG circular progress styling */
+    .progress-ring__circle {
+      transition: stroke-dashoffset 0.35s linear;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
     }
-
-    function toggleTodo(idx) {
-      scheduleData.todos[idx].done = !scheduleData.todos[idx].done;
-      saveData();
+    body {
+      background-color: #FBF7F0;
+      -webkit-tap-highlight-color: transparent;
     }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-cozy-brown font-sans antialiased selection:bg-cozy-peach">
 
-    function deleteTodo(idx) {
-      scheduleData.todos.splice(idx, 1);
-      saveData();
-    }
+  <!-- Main Container -->
+  <main class="w-full max-w-md bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-cozy-peach/50 p-6 sm:p-8 flex flex-col items-center relative overflow-hidden transition-all duration-300">
+    
+    <!-- Decorative background elements -->
+    <div class="absolute -top-12 -right-12 w-36 h-36 bg-cozy-peach/40 rounded-full blur-2xl pointer-events-none"></div>
+    <div class="absolute -bottom-12 -left-12 w-36 h-36 bg-cozy-mint/50 rounded-full blur-2xl pointer-events-none"></div>
 
-    function addWeeklyTodo() {
-      const text = prompt('이번 주 꼭 챙겨야 할 일/물품전달/공지를 적어주세요:');
-      if (text && text.trim()) {
-        scheduleData.todos.push({ id: Date.now(), text: text.trim(), done: false });
-        saveData();
+    <!-- Header Section -->
+    <header class="w-full text-center mb-5 z-10">
+      <div class="flex items-center justify-center mb-2">
+        <div class="inline-flex items-center gap-2 bg-amber-100/80 px-3.5 py-1.5 rounded-full text-xs font-bold text-amber-800 tracking-wide animate-float shadow-sm">
+          <span>🍅 익살맞은 토마토 친구가 응원해요!</span>
+        </div>
+      </div>
+      <h1 class="text-2xl font-bold tracking-tight text-cozy-brown flex items-center justify-center gap-2">
+        <span>초단기 틈새 타이머</span>
+        <span class="text-2xl inline-block hover:rotate-12 transition-transform">🍅</span>
+      </h1>
+      <p id="motivationalMsg" class="text-sm text-cozy-muted mt-1.5 transition-opacity duration-300">
+        딴생각 나도 괜찮아요. 딱 한 문제만 보고 덮어요!
+      </p>
+    </header>
+
+    <!-- Quick Preset Buttons -->
+    <section class="w-full mb-6 z-10" aria-label="시간 프리셋 선택">
+      <div class="grid grid-cols-4 gap-2">
+        <button onclick="setTimer(3)" class="preset-btn py-2.5 px-1 rounded-2xl bg-cozy-card border border-cozy-peach/60 text-xs font-bold text-cozy-muted hover:bg-cozy-peach/50 hover:text-cozy-brown transition-all duration-200 active:scale-95 flex flex-col items-center">
+          <span class="text-base mb-0.5">🌱</span>
+          <span>3분 힐링</span>
+        </button>
+        <button onclick="setTimer(5)" class="preset-btn py-2.5 px-1 rounded-2xl bg-cozy-card border border-cozy-peach/60 text-xs font-bold text-cozy-muted hover:bg-cozy-peach/50 hover:text-cozy-brown transition-all duration-200 active:scale-95 flex flex-col items-center">
+          <span class="text-base mb-0.5">☕</span>
+          <span>5분 시작</span>
+        </button>
+        <button onclick="setTimer(10)" class="preset-btn active-preset py-2.5 px-1 rounded-2xl bg-cozy-coral text-white border border-cozy-coral shadow-md shadow-cozy-coral/30 text-xs font-bold transition-all duration-200 active:scale-95 flex flex-col items-center">
+          <span class="text-base mb-0.5">⭐</span>
+          <span>10분 집중</span>
+        </button>
+        <button onclick="setTimer(15)" class="preset-btn py-2.5 px-1 rounded-2xl bg-cozy-card border border-cozy-peach/60 text-xs font-bold text-cozy-muted hover:bg-cozy-peach/50 hover:text-cozy-brown transition-all duration-200 active:scale-95 flex flex-col items-center">
+          <span class="text-base mb-0.5">🎯</span>
+          <span>15분 완성</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Circular Timer Display -->
+    <div class="relative w-64 h-64 sm:w-72 sm:h-72 flex items-center justify-center my-1 z-10">
+      <svg class="w-full h-full transform" viewBox="0 0 260 260">
+        <!-- Background Track -->
+        <circle
+          cx="130"
+          cy="130"
+          r="108"
+          stroke="#F3E9DF"
+          stroke-width="14"
+          fill="transparent"
+          stroke-linecap="round"
+        />
+        <!-- Active Progress Ring -->
+        <circle
+          id="progressCircle"
+          class="progress-ring__circle"
+          cx="130"
+          cy="130"
+          r="108"
+          stroke="#F7A389"
+          stroke-width="14"
+          fill="transparent"
+          stroke-linecap="round"
+          stroke-dasharray="678.58"
+          stroke-dashoffset="0"
+        />
+      </svg>
+
+      <!-- Center Countdown & Status -->
+      <div class="absolute inset-0 flex flex-col items-center justify-center text-center select-none pointer-events-none">
+        <span id="sessionTag" class="text-xs uppercase tracking-widest font-semibold text-cozy-coral bg-cozy-card px-2.5 py-1 rounded-full border border-cozy-peach/50 mb-1">
+          컴활 10분 챌린지
+        </span>
+        <div id="timeDisplay" class="text-5xl sm:text-6xl font-extrabold tracking-tighter text-cozy-brown drop-shadow-sm font-mono">
+          10:00
+        </div>
+        <div id="statusDot" class="flex items-center gap-1.5 mt-2 text-xs font-medium text-cozy-muted">
+          <span class="w-2.5 h-2.5 rounded-full bg-cozy-sage/80 animate-ping"></span>
+          <span id="statusText">준비 완료! 가볍게 시작해요</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls Section -->
+    <div class="w-full flex items-center justify-center gap-3 mt-5 z-10">
+      <!-- Reset Button -->
+      <button 
+        id="resetBtn" 
+        onclick="resetTimer()" 
+        title="초기화"
+        class="w-14 h-14 rounded-2xl bg-cozy-card hover:bg-cozy-peach/60 border border-cozy-peach/80 text-cozy-muted hover:text-cozy-brown flex items-center justify-center transition-all duration-200 active:scale-90 shadow-sm"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      </button>
+
+      <!-- Main Play/Pause Button -->
+      <button 
+        id="toggleBtn" 
+        onclick="toggleTimer()" 
+        class="flex-1 max-w-[200px] h-14 rounded-2xl bg-cozy-coral hover:bg-cozy-coralHover text-white font-bold text-lg flex items-center justify-center gap-2 shadow-lg shadow-cozy-coral/30 transition-all duration-200 active:scale-95"
+      >
+        <span id="toggleIcon">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </span>
+        <span id="toggleText">시작하기</span>
+      </button>
+
+      <!-- Soft Sound Toggle -->
+      <button 
+        id="soundBtn" 
+        onclick="toggleSound()" 
+        title="알림음 켜기/끄기"
+        class="w-14 h-14 rounded-2xl bg-cozy-card hover:bg-cozy-peach/60 border border-cozy-peach/80 text-cozy-muted hover:text-cozy-brown flex items-center justify-center transition-all duration-200 active:scale-90 shadow-sm"
+      >
+        <span id="soundIcon" class="text-xl">🔔</span>
+      </button>
+    </div>
+
+    <!-- Completed Counter Footnote -->
+    <div class="mt-7 w-full border-t border-cozy-peach/40 pt-4 flex items-center justify-between text-xs text-cozy-muted z-10 px-1">
+      <div class="flex items-center gap-1.5">
+        <span>오늘 채운 조각:</span>
+        <span id="completedCount" class="font-bold text-cozy-coral text-sm">0회</span>
+      </div>
+      <button onclick="addMinute(1)" class="text-cozy-coral hover:underline font-semibold flex items-center gap-1">
+        <span>+1분 더하기</span>
+      </button>
+    </div>
+
+  </main>
+
+  <script>
+    // State variables
+    let totalSeconds = 10 * 60;
+    let remainingSeconds = 10 * 60;
+    let timerId = null;
+    let isRunning = false;
+    let soundEnabled = true;
+    let completedSessions = 0;
+
+    // Encouraging messages pool
+    const messages = [
+      "딴생각 나도 괜찮아요. 딱 한 문제만 보고 덮어요!",
+      "5분이면 충분해요. 시작한 것만으로도 대단한 일!",
+      "가볍게 훑어보기만 해도 뇌에 차곡차곡 쌓여요.",
+      "길게 안 해도 돼요. 딱 이 페이지만 읽고 쉬어요!",
+      "오늘의 10분이 내일의 자격증을 만들어요 ⭐"
+    ];
+
+    // DOM Elements
+    const timeDisplay = document.getElementById('timeDisplay');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const toggleText = document.getElementById('toggleText');
+    const progressCircle = document.getElementById('progressCircle');
+    const statusText = document.getElementById('statusText');
+    const statusDot = document.getElementById('statusDot');
+    const motivationalMsg = document.getElementById('motivationalMsg');
+    const completedCount = document.getElementById('completedCount');
+    const sessionTag = document.getElementById('sessionTag');
+    const soundIcon = document.getElementById('soundIcon');
+    const presetButtons = document.querySelectorAll('.preset-btn');
+
+    // Circumference of 108 radius circle = 2 * PI * 108 ≈ 678.58
+    const CIRCUMFERENCE = 678.58;
+    progressCircle.style.strokeDasharray = CIRCUMFERENCE;
+
+    // Tone.js Synth for gentle chime
+    let synth = null;
+
+    function initTone() {
+      if (!synth) {
+        try {
+          synth = new Tone.PolySynth(Tone.Synth, {
+            oscillator: { type: "triangle" },
+            envelope: {
+              attack: 0.05,
+              decay: 0.2,
+              sustain: 0.2,
+              release: 1.2
+            }
+          }).toDestination();
+          synth.volume.value = -6;
+        } catch(e) {
+          console.log("Audio not allowed yet");
+        }
       }
     }
 
-    // --- 요일 탭 ---
-    function renderDayTabs() {
-      const container = document.getElementById('dayTabsContainer');
-      container.innerHTML = '';
-      DAYS.forEach(day => {
-        const info = scheduleData.days[day];
-        const isCurrent = (day === currentDay);
-        const btn = document.createElement('button');
-        
-        let statusBadge = '';
-        if (info.status === '종일휴가') statusBadge = '🔴휴가';
-        else if (info.status === '오전휴가') statusBadge = '🟡오전반';
-        else if (info.status === '오후휴가') statusBadge = '🟡오후반';
-        else statusBadge = `${info.events.length}건`;
-
-        btn.className = `flex-1 py-2 px-1 rounded-xl text-center transition-all ${isCurrent ? 'bg-indigo-600 text-white font-extrabold shadow-lg neon-badge border border-indigo-400/50' : 'bg-slate-900/70 text-slate-400 border border-slate-800/70'}`;
-        btn.innerHTML = `
-          <div class="text-xs tracking-tight">${day}요일</div>
-          <div class="text-[10px] mt-0.5 font-bold ${isCurrent ? 'text-indigo-200' : 'text-slate-500'}">${statusBadge}</div>
-        `;
-        btn.onclick = () => {
-          currentDay = day;
-          renderDayTabs();
-          renderCurrentDay();
-        };
-        container.appendChild(btn);
-      });
+    // Play completion chime
+    function playChime() {
+      if (!soundEnabled) return;
+      initTone();
+      try {
+        if (Tone.context.state !== 'running') {
+          Tone.start();
+        }
+        const now = Tone.now();
+        synth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "8n", now);
+        synth.triggerAttackRelease(["G5", "C6"], "4n", now + 0.3);
+      } catch(e) {
+        console.log(e);
+      }
     }
 
-    // --- 현재 요일 리스트 렌더링 ---
-    function renderCurrentDay() {
-      document.getElementById('currentDayTitle').textContent = `${currentDay}요일 일정`;
-      const dayData = scheduleData.days[currentDay];
-      document.getElementById('currentDayCount').textContent = `총 ${dayData.events.length}건`;
+    // Play soft tick/click on start
+    function playStartTone() {
+      if (!soundEnabled) return;
+      initTone();
+      try {
+        if (Tone.context.state !== 'running') {
+          Tone.start();
+        }
+        synth.triggerAttackRelease("G4", "16n");
+      } catch(e) {}
+    }
 
-      // 휴가 배너
-      const banner = document.getElementById('dayNoticeBanner');
-      if (dayData.status !== '정상근무') {
-        banner.className = `mb-3 p-2.5 rounded-xl text-xs font-bold flex items-center justify-between border ${dayData.status === '종일휴가' ? 'bg-rose-950/40 border-rose-800 text-rose-300' : 'bg-amber-950/40 border-amber-800 text-amber-300'}`;
-        banner.innerHTML = `
-          <span>🌴 오늘 상태: <strong class="underline">${dayData.status}</strong></span>
-          <button onclick="openDayConfigModal()" class="text-[10px] bg-slate-900 px-2 py-0.5 rounded border border-slate-700">변경</button>
-        `;
-        banner.classList.remove('hidden');
+    // Format seconds to mm:ss
+    function formatTime(sec) {
+      const mins = Math.floor(sec / 60);
+      const secs = sec % 60;
+      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    // Update Progress Ring & Display
+    function updateDisplay() {
+      timeDisplay.textContent = formatTime(remainingSeconds);
+      const fraction = remainingSeconds / totalSeconds;
+      const offset = CIRCUMFERENCE * (1 - fraction);
+      progressCircle.style.strokeDashoffset = offset;
+    }
+
+    // Toggle Start / Pause
+    function toggleTimer() {
+      if (isRunning) {
+        pauseTimer();
       } else {
-        banner.classList.add('hidden');
-      }
-
-      const container = document.getElementById('scheduleTableBody');
-      container.innerHTML = '';
-
-      if (dayData.events.length === 0) {
-        container.innerHTML = `
-          <div class="p-8 text-center text-slate-500 text-xs">
-            등록된 일정이 없습니다. 우측 상단 '+ 추가'를 눌러 등록하세요.
-          </div>
-        `;
-        return;
-      }
-
-      dayData.events.sort((a, b) => a.start.localeCompare(b.start));
-
-      dayData.events.forEach((ev) => {
-        const isJungjum = (ev.name === '손금천');
-        const isMeeting = ev.name.includes('조회') || ev.name.includes('회의');
-
-        const row = document.createElement('div');
-        row.className = 'p-3 flex items-center justify-between hover:bg-slate-800/30 transition';
-        row.innerHTML = `
-          <div class="flex-1 pr-2">
-            <!-- 1. 시간 버튼 (터치 시 1초 퀵 수정) -->
-            <div class="flex items-center gap-2 mb-1.5">
-              <button onclick="openQuickTime(${ev.id})" class="text-xs font-black neon-green bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded-lg hover:bg-emerald-900/50 flex items-center gap-1 active:scale-95 transition">
-                <span>${ev.start} ~ ${ev.end}</span>
-                <i class="fa-solid fa-pen text-[9px] text-emerald-400/70"></i>
-              </button>
-              ${isJungjum ? '<span class="text-[10px] bg-emerald-500 text-slate-950 px-1.5 py-0.2 rounded font-black">중점 60분 (마지막)</span>' : ''}
-              ${isMeeting ? '<span class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.2 rounded font-black">복지관</span>' : ''}
-            </div>
-
-            <!-- 2. 성함 + 간단 주소 태그 -->
-            <div class="flex items-center gap-2 mb-1">
-              <span class="text-sm font-black text-white">${ev.name}</span>
-              ${ev.loc ? `<span class="text-[11px] font-semibold text-cyan-300 bg-cyan-950/60 border border-cyan-800/50 px-1.5 py-0.2 rounded">${ev.loc}</span>` : ''}
-            </div>
-
-            <!-- 3. 상세 메모 -->
-            <div class="text-xs text-slate-400">
-              📋 ${ev.service || '안부확인'}
-            </div>
-          </div>
-
-          <!-- 삭제 버튼 -->
-          <button onclick="deleteEvent(${ev.id})" class="text-slate-500 hover:text-rose-400 text-xs p-2 shrink-0">
-            <i class="fa-solid fa-trash-can"></i>
-          </button>
-        `;
-        container.appendChild(row);
-      });
-    }
-
-    // --- 1초 퀵 시간 변경 모달 ---
-    function openQuickTime(id) {
-      const dayData = scheduleData.days[currentDay];
-      const ev = dayData.events.find(e => e.id === id);
-      if (!ev) return;
-
-      editingEventId = id;
-      document.getElementById('timeModalTargetName').textContent = `대상: ${ev.name} [${ev.loc || ''}]`;
-      document.getElementById('quickStart').value = ev.start;
-      document.getElementById('quickEnd').value = ev.end;
-
-      document.getElementById('timeModal').classList.remove('hidden');
-      document.getElementById('timeModal').classList.add('flex');
-    }
-
-    function closeTimeModal() {
-      document.getElementById('timeModal').classList.add('hidden');
-      document.getElementById('timeModal').classList.remove('flex');
-      editingEventId = null;
-    }
-
-    function applyTimePreset(s, e) {
-      document.getElementById('quickStart').value = s;
-      document.getElementById('quickEnd').value = e;
-    }
-
-    function saveQuickTime() {
-      if (!editingEventId) return;
-      const dayData = scheduleData.days[currentDay];
-      const ev = dayData.events.find(e => e.id === editingEventId);
-      if (ev) {
-        ev.start = document.getElementById('quickStart').value;
-        ev.end = document.getElementById('quickEnd').value;
-        saveData();
-      }
-      closeTimeModal();
-    }
-
-    // --- 일정 추가 모달 ---
-    function openAddEventModal() {
-      document.getElementById('modalTitle').textContent = `${currentDay}요일 새 일정 추가`;
-      document.getElementById('inputSenior').value = '';
-      document.getElementById('inputName').value = '';
-      document.getElementById('inputLoc').value = '';
-      document.getElementById('inputStartTime').value = '10:00';
-      document.getElementById('inputEndTime').value = '10:30';
-      document.getElementById('inputService').value = '안부+말벗';
-      document.getElementById('eventModal').classList.remove('hidden');
-      document.getElementById('eventModal').classList.add('flex');
-    }
-
-    function closeModal() {
-      document.getElementById('eventModal').classList.add('hidden');
-      document.getElementById('eventModal').classList.remove('flex');
-    }
-
-    function autoFillSenior(val) {
-      if (!val) return;
-      const [name, loc, start, end, type] = val.split('|');
-      document.getElementById('inputName').value = name;
-      document.getElementById('inputLoc').value = loc;
-      document.getElementById('inputStartTime').value = start;
-      document.getElementById('inputEndTime').value = end;
-      document.getElementById('inputService').value = (type === '중점') ? '신체·가사·인지 (중점 60분)' : '안부+말벗 (30분)';
-    }
-
-    function saveEvent() {
-      let name = document.getElementById('inputName').value.trim();
-      name = name.replace(/어르신/g, '').trim();
-      const loc = document.getElementById('inputLoc').value.trim();
-      const start = document.getElementById('inputStartTime').value;
-      const end = document.getElementById('inputEndTime').value;
-      const service = document.getElementById('inputService').value.trim();
-
-      if (!name) {
-        alert('성함을 입력해주세요.');
-        return;
-      }
-
-      scheduleData.days[currentDay].events.push({
-        id: Date.now(),
-        name: name,
-        loc: loc,
-        start: start,
-        end: end,
-        service: service
-      });
-
-      saveData();
-      closeModal();
-    }
-
-    function deleteEvent(id) {
-      if (confirm('이 일정을 삭제하시겠습니까?')) {
-        scheduleData.days[currentDay].events = scheduleData.days[currentDay].events.filter(e => e.id !== id);
-        saveData();
+        startTimer();
       }
     }
 
-    // --- 요일 회의 / 휴가 설정 ---
-    function openDayConfigModal() {
-      document.getElementById('configDayTitle').textContent = `${currentDay}요일 회의 / 휴가 설정`;
-      highlightVacationBtn(scheduleData.days[currentDay].status);
-      document.getElementById('configModal').classList.remove('hidden');
-      document.getElementById('configModal').classList.add('flex');
-    }
+    function startTimer() {
+      if (remainingSeconds <= 0) return;
+      playStartTone();
+      isRunning = true;
+      toggleText.textContent = "잠시 쉬기";
+      toggleIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+      toggleBtn.classList.replace('bg-cozy-coral', 'bg-cozy-sage');
+      toggleBtn.classList.replace('hover:bg-cozy-coralHover', 'hover:bg-cozy-sage/90');
+      toggleBtn.classList.replace('shadow-cozy-coral/30', 'shadow-cozy-sage/30');
 
-    function closeConfigModal() {
-      document.getElementById('configModal').classList.add('hidden');
-      document.getElementById('configModal').classList.remove('flex');
-    }
+      statusText.textContent = "지금은 딱 1개에만 몰입하는 중 ✨";
+      statusDot.firstElementChild.className = "w-2.5 h-2.5 rounded-full bg-cozy-coral animate-ping";
 
-    function highlightVacationBtn(status) {
-      document.querySelectorAll('#vacationTypeGroup .v-btn').forEach(b => {
-        if (b.innerText.includes(status)) {
-          b.classList.add('ring-2', 'ring-emerald-400');
+      timerId = setInterval(() => {
+        if (remainingSeconds > 0) {
+          remainingSeconds--;
+          updateDisplay();
         } else {
-          b.classList.remove('ring-2', 'ring-emerald-400');
+          completeTimer();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      isRunning = false;
+      clearInterval(timerId);
+      toggleText.textContent = "이어하기";
+      toggleIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+      toggleBtn.classList.replace('bg-cozy-sage', 'bg-cozy-coral');
+      toggleBtn.classList.replace('hover:bg-cozy-sage/90', 'hover:bg-cozy-coralHover');
+      toggleBtn.classList.replace('shadow-cozy-sage/30', 'shadow-cozy-coral/30');
+
+      statusText.textContent = "잠시 숨 고르는 중 ☕";
+      statusDot.firstElementChild.className = "w-2.5 h-2.5 rounded-full bg-cozy-muted";
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      remainingSeconds = totalSeconds;
+      toggleText.textContent = "시작하기";
+      statusText.textContent = "준비 완료! 가볍게 시작해요";
+      statusDot.firstElementChild.className = "w-2.5 h-2.5 rounded-full bg-cozy-sage/80 animate-ping";
+      updateDisplay();
+    }
+
+    // When timer hits 00:00
+    function completeTimer() {
+      pauseTimer();
+      completedSessions++;
+      completedCount.textContent = `${completedSessions}회`;
+      statusText.textContent = "오늘 분량 완벽 달성! 멋져요 🎉";
+      
+      // Fire festive warm confetti
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 70,
+          spread: 60,
+          origin: { y: 0.65 },
+          colors: ['#F7A389', '#FFE8D6', '#8BA888', '#FFD166']
+        });
+      }
+
+      playChime();
+
+      motivationalMsg.textContent = "정말 대단해요! 딱 이만큼이면 충분해요. 이제 홀가분하게 쉬세요!";
+      motivationalMsg.classList.add('text-cozy-coral', 'font-bold');
+      setTimeout(() => {
+        motivationalMsg.classList.remove('text-cozy-coral', 'font-bold');
+      }, 5000);
+    }
+
+    // Set duration from preset (minutes)
+    function setTimer(minutes) {
+      pauseTimer();
+      totalSeconds = minutes * 60;
+      remainingSeconds = totalSeconds;
+      sessionTag.textContent = `컴활 ${minutes}분 챌린지`;
+
+      // Cycle message randomly
+      const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+      motivationalMsg.textContent = randomMsg;
+
+      // Update button active styles
+      presetButtons.forEach(btn => {
+        if (btn.textContent.includes(`${minutes}분`)) {
+          btn.className = "preset-btn active-preset py-2.5 px-1 rounded-2xl bg-cozy-coral text-white border border-cozy-coral shadow-md shadow-cozy-coral/30 text-xs font-bold transition-all duration-200 active:scale-95 flex flex-col items-center";
+        } else {
+          btn.className = "preset-btn py-2.5 px-1 rounded-2xl bg-cozy-card border border-cozy-peach/60 text-xs font-bold text-cozy-muted hover:bg-cozy-peach/50 hover:text-cozy-brown transition-all duration-200 active:scale-95 flex flex-col items-center";
         }
       });
+
+      resetTimer();
     }
 
-    function selectVacationType(type) {
-      scheduleData.days[currentDay].status = type;
-      highlightVacationBtn(type);
-      saveData();
-      setTimeout(closeConfigModal, 200);
+    // Add +1 minute on the fly
+    function addMinute(mins) {
+      remainingSeconds += mins * 60;
+      totalSeconds += mins * 60;
+      updateDisplay();
     }
 
-    function quickAddMeeting(meetingName, start, end) {
-      scheduleData.days[currentDay].events.unshift({
-        id: Date.now(),
-        name: meetingName,
-        loc: '복지관 회의실',
-        start: start,
-        end: end,
-        service: '영통종합사회복지관'
-      });
-      saveData();
-      closeConfigModal();
+    // Toggle Sound On/Off
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      soundIcon.textContent = soundEnabled ? '🔔' : '🔕';
+      if (soundEnabled) {
+        initTone();
+      }
     }
 
-    // 시작
-    renderDayTabs();
-    renderCurrentDay();
-    renderTodos();
+    // Start on window load
+    window.onload = function() {
+      updateDisplay();
+    };
   </script>
 </body>
 </html>
